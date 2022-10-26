@@ -17,13 +17,12 @@ package instanceofs;
 
 import static com.google.j2cl.integration.testing.Asserts.assertFalse;
 import static com.google.j2cl.integration.testing.Asserts.assertTrue;
+import static com.google.j2cl.integration.testing.TestUtils.isWasm;
 
 import java.io.Serializable;
-import javaemul.internal.annotations.Wasm;
 
-/**
- * Test instanceof array.
- */
+/** Test instanceof array. */
+@SuppressWarnings("BadInstanceof")
 public class Main {
   public static void main(String... args) {
     testInstanceOf_class();
@@ -32,6 +31,7 @@ public class Main {
     testInstanceOf_boxedTypes();
     testInstanceOf_string();
     testInstanceOf_sideEffects();
+    testInstanceOf_markerInterfaces();
   }
 
   private static void testInstanceOf_class() {
@@ -97,9 +97,11 @@ public class Main {
   private static class Implementor implements ChildInterface, GenericInterface<String> {}
 
   @SuppressWarnings("cast")
-  // TODO(b/184675805): Enable when array metadata is fully implemented.
-  @Wasm("nop")
   private static void testInstanceOf_array() {
+    // TODO(b/184675805): Enable for WASM when array metadata is fully implemented.
+    if (isWasm()) {
+      return;
+    }
     Object object = new Object();
     assertTrue(object instanceof Object);
     assertTrue(!(object instanceof Object[]));
@@ -354,4 +356,21 @@ public class Main {
     assertTrue(s instanceof Serializable);
     assertTrue(!(s instanceof Cloneable));
   }
+
+  private static void testInstanceOf_markerInterfaces() {
+    class A implements MarkerA {}
+    class B implements MarkerB {}
+
+    Object a = new A();
+    assertTrue(a instanceof MarkerA);
+    assertFalse(a instanceof MarkerB);
+
+    Object b = new B();
+    assertTrue(b instanceof MarkerB);
+    assertFalse(b instanceof MarkerA);
+  }
+
+  interface MarkerA {}
+
+  interface MarkerB {}
 }
