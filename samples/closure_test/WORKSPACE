@@ -1,4 +1,4 @@
-workspace(name = "com_google_j2cl_samples_helloworld")
+workspace(name = "com_google_j2cl_samples_closure_test")
 
 # Load j2cl repository
 # If you are not developing with J2CL, you may want to use a remote repository
