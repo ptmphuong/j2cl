@@ -24,6 +24,8 @@ load(
     _J2CL_TEST_DEFS = "J2CL_TEST_DEFS",
 )
 
+load("//build_defs/internal_do_not_use:closure_js_test.bzl", _closure_js_test = "closure_js_test")
+
 setup_j2cl_workspace = _setup_j2cl_workspace
 
 j2cl_application = _j2cl_application
@@ -63,3 +65,5 @@ j2wasm_test = _j2wasm_test
 J2CL_OPTIMIZED_DEFS = _J2CL_OPTIMIZED_DEFS
 
 J2CL_TEST_DEFS = _J2CL_TEST_DEFS
+
+closure_js_test = _closure_js_test

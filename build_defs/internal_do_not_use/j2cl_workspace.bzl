@@ -12,8 +12,6 @@ load("@io_bazel_rules_webtesting//web:repositories.bzl", "web_test_repositories"
 load("@io_bazel_rules_webtesting//web/versioned:browsers-0.3.3.bzl", "browser_repositories")
 load("@io_bazel_rules_webtesting//web:go_repositories.bzl", "go_repositories", "go_internal_repositories")
 
-
-
 _MAVEN_CENTRAL_URLS = ["https://repo1.maven.org/maven2/"]
 
 def setup_j2cl_workspace(**kwargs):
