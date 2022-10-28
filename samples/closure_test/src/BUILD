@@ -6,25 +6,27 @@ load("@com_google_j2cl//build_defs:rules.bzl", "closure_js_test")
 closure_js_test(
     name = "simple_test",
     timeout = "short",
-    srcs = ["simple_test.js"],
-    entry_points = ["goog:simple_test"],
+    srcs = ["simple_testsuite_test.js"],
+    entry_points = ["goog:simple_testsuite"],
     deps = [
-        "@com_google_javascript_closure_library//closure/goog/testing:asserts",
-        "@com_google_javascript_closure_library//closure/goog/testing:jsunit",
-        "@com_google_javascript_closure_library//closure/goog/testing:testsuite",
+      ":object_simple",
+      "@com_google_javascript_closure_library//closure/goog/testing:asserts",
+      "@com_google_javascript_closure_library//closure/goog/testing:jsunit",
+      "@com_google_javascript_closure_library//closure/goog/testing:testsuite",
     ],
     browsers = ["@io_bazel_rules_webtesting//browsers:chromium-local"],
 )
 
-closure_js_test(
-    name = "failed_simple_test",
-    timeout = "short",
-    srcs = ["failed_simple_test.js"],
+closure_js_library(
+    name = "object_simple",
+    srcs = ["simpleobject_test.js"],
     deps = [
         "@com_google_javascript_closure_library//closure/goog/testing:asserts",
         "@com_google_javascript_closure_library//closure/goog/testing:jsunit",
     ],
+    testonly = 1,
 )
+
 
 closure_js_library(
     name = "arithmetic_module_lib",
