@@ -26,7 +26,7 @@ def j2cl_test_common(
     exports = (kwargs.get("deps") or []) + runtime_deps
 
     j2cl_library_rule(
-        name = "%s_lib" % name,
+        name = "%s_testlib" % name,
         exports = exports,
         testonly = 1,
         tags = tags,
@@ -37,7 +37,7 @@ def j2cl_test_common(
         # name = "%s_generated_suite" % name,
         name = name,
         test_class = test_class,
-        deps = [":%s_lib" % name],
+        deps = [":%s_testlib" % name],
         tags = tags,
     )
 

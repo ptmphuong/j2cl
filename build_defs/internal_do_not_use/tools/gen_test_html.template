@@ -21,7 +21,6 @@ the License.
 <!--
 This is a template of the default test file used for running JS tests
 declared with js_test or closure_js_test rules.
-<script src="/external/polyfill/custom-elements.min.js"></script>
 -->
 <script>
   // goog.require does not need to fetch sources from the local
