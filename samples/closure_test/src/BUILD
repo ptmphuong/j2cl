@@ -7,9 +7,11 @@ closure_js_test(
     name = "simple_test",
     timeout = "short",
     srcs = ["simple_test.js"],
+    entry_points = ["goog:simple_test"],
     deps = [
         "@com_google_javascript_closure_library//closure/goog/testing:asserts",
         "@com_google_javascript_closure_library//closure/goog/testing:jsunit",
+        "@com_google_javascript_closure_library//closure/goog/testing:testsuite",
     ],
     browsers = ["@io_bazel_rules_webtesting//browsers:chromium-local"],
 )
