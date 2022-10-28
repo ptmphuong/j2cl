@@ -2,21 +2,25 @@
  * @fileoverview Description of this file.
  */
 
-goog.module('simple_test_object.SimpleTestObject');
+goog.module('simple_test_object.SimpleTest');
 goog.setTestOnly();
 
 goog.require('goog.testing.asserts');
 goog.require('goog.testing.jsunit');
 
 
-class SimpleTestObject {
+class SimpleTest{
   constructor() {
     this.num = 0;
   }
 
-  testSimpleEqual() {
+  testSimpleEqual1() {
+    assertEquals(2, 1 + 1);
+  }
+
+  testSimpleEqual2() {
     assertEquals(2, 1 + 1);
   }
 }
 
-exports = SimpleTestObject;
+exports = SimpleTest;
