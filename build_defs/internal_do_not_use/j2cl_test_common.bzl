@@ -3,11 +3,10 @@
 load(":j2cl_java_library.bzl", j2cl_library_rule = "j2cl_library")
 load(":j2cl_generate_jsunit_suite.bzl", "j2cl_generate_jsunit_suite")
 load(":j2cl_util.bzl", "get_java_package")
-# load(":closure_js_test.bzl", "closure_js_test")
+load(":closure_js_test.bzl", "closure_js_test")
 load(
     "@io_bazel_rules_closure//closure:defs.bzl",
-    "closure_js_test",
-    "closure_js_binary",
+    # "closure_js_test",
     "closure_js_library"
 )
 load(":j2cl_js_common.bzl", "J2CL_TEST_DEFS")
@@ -54,45 +53,25 @@ def j2cl_test_common(
       "@com_google_javascript_closure_library//closure/goog/testing:asserts",
       "@com_google_javascript_closure_library//closure/goog/testing:jsunit",
       "@com_google_javascript_closure_library//closure/goog/testing:testsuite",
+      "@com_google_javascript_closure_library//closure/goog/testing:testcase",
       "@com_google_j2cl//build_defs/internal_do_not_use:internal_parametrized_test_suite",
-      "@com_google_j2cl//:jre",
     ]
 
-    # closure_js_library(
-    #   name = "%s_closure_testlib" % name,
-    #   srcs = [
-    #     # ":lib" + generated_suite_name + "_lib.jar",
-    #     # generated_suite_name,
-    #     # ":%s_testlib" % name,
-    #     # ":%s_generated_suite.js.zip" % name,
-    #   ],
-    #   deps = deps,
-    #   testonly = 1,
-    # )
-
-    # deps = deps + ["%s_closure_testlib" % name]
-
+    # TODO(phpham): undo hardcode. pass the direct target here
     closure_js_test(
         name = name,
-        srcs = [":%s_generated_suite_test.js" % name],
-        deps = deps,
+        # srcs = ["//src/test/java/com/google/j2cl/samples/helloworldlib:SimplePassingTest_test.js"],
+        srcs = ["//src/test/java/com/google/j2cl/samples/helloworldlib:HelloWorldTest_test.js"],
+        deps = deps + [
+             "@com_google_j2cl//:jre",
+        ],
         browsers = browsers,
         testonly = 1,
         timeout = "short",
-        entry_points = ["javatests.com.google.j2cl.samples.helloworldlib.SimplePassingTest_AdapterSuite"],
-        defs = J2CL_TEST_DEFS,
+        # entry_points = ["javatests.com.google.j2cl.samples.helloworldlib.SimplePassingTest_AdapterSuite"],
+        entry_points = ["javatests.com.google.j2cl.samples.helloworldlib.HelloWorldTest_AdapterSuite"],
+        # defs = J2CL_TEST_DEFS,
     )
-
-    # No-op until unit testing support implemented for open-source.
-    # native.genrule(
-    #     name = name,
-    #     deprecation = "\nCAUTION: This is a placeholder. " +
-    #                   "j2cl_test has not ported to opensource yet." +
-    #                   "\nHENCE WE DO *NOT* KNOW IF YOUR TEST IS PASSING OR NOT!",
-    #     cmd = "echo Empty > $@",
-    #     tags = ["manual"],
-    #     outs = [name + ".out"],
-    # )
 
 def _get_test_class(name, build_package, test_class):
     """Infers the name of the test class to be compiled."""
