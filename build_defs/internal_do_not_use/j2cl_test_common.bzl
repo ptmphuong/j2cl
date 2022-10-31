@@ -45,9 +45,8 @@ def j2cl_test_common(
     )
 
     deps = [
-      # "%s_testlib" % name,
-      # ":%s" % generated_suite_name,
-      ":%s_lib" % generated_suite_name,
+      "%s_testlib" % name,
+      ":%s_generated_suite_lib" % name,
       "@com_google_javascript_closure_library//closure/goog/testing:asserts",
       "@com_google_javascript_closure_library//closure/goog/testing:jsunit",
       "@com_google_javascript_closure_library//closure/goog/testing:testsuite",
@@ -57,9 +56,9 @@ def j2cl_test_common(
     # closure_js_library(
     #   name = "%s_closure_testlib" % name,
     #   srcs = [
-    #     ":lib" + generated_suite_name + "_lib.jar",
+    #     # ":lib" + generated_suite_name + "_lib.jar",
     #     # generated_suite_name,
-    #     # "%s_testlib" % name,
+    #     # ":%s_testlib" % name,
     #     # ":%s_generated_suite.js.zip" % name,
     #   ],
     #   deps = deps,
@@ -70,12 +69,12 @@ def j2cl_test_common(
 
     closure_js_test(
         name = name,
-        srcs = ["//com/google/j2cl/samples/helloworldlib:HelloWorldTest.js"],
+        srcs = [":%s_generated_suite.js" % name],
         deps = deps,
         browsers = browsers,
         testonly = 1,
         timeout = "short",
-        entry_points = ["javatests.com.google.j2cl.samples.helloworldlib.HelloWorldTest_AdapterSuite"],
+        entry_points = ["javatests.com.google.j2cl.samples.helloworldlib.SimplePassingTest_AdapterSuite"],
         defs = J2CL_TEST_DEFS,
     )
 
