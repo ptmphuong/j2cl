@@ -28,9 +28,9 @@ def closure_js_test(
         fail("closure_js_test can not have an empty 'srcs' list")
     if language:
         print("closure_js_test 'language' is removed and now always ES6 strict")
-    for src in srcs:
-        if not src.endswith("_test.js"):
-            fail("closure_js_test srcs must be files ending with _test.js")
+    # for src in srcs:
+    #     if not src.endswith("_test.js"):
+    #         fail("closure_js_test srcs must be files ending with _test.js")
     if len(srcs) == 1:
         work = [(name, srcs)]
     else:
@@ -38,7 +38,7 @@ def closure_js_test(
 
     for shard, sauce in work:
         closure_js_library(
-            name = "%s_lib" % shard,
+            name = "%s_closure_lib" % shard,
             srcs = sauce,
             data = data,
             deps = deps,
@@ -54,9 +54,11 @@ def closure_js_test(
         else:
             ep = entry_points
 
+        deps = deps + [":%s_closure_lib" % shard]
+
         closure_js_binary(
-            name = "%s_bin" % shard,
-            deps = [":%s_lib" % shard],
+            name = "%s_closure_bin" % shard,
+            deps = deps,
             compilation_level = compilation_level,
             css = css,
             debug = True,
@@ -72,7 +74,7 @@ def closure_js_test(
         if not html:
           gen_test_html(
             name = "gen_%s" % shard,
-            test_file_js = "%s_bin.js" % shard,
+            test_file_js = "%s_closure_bin.js" % shard,
           )
           html = "gen_%s" % shard
 
@@ -81,7 +83,7 @@ def closure_js_test(
 
         web_test_suite(
             name = shard,
-            data = [":%s_bin" % shard, html],
+            data = [":%s_closure_bin" % shard, html],
             test = "@com_google_j2cl//build_defs/internal_do_not_use/tools:webtest",
             args = ["--test_url", "$(location %s)" % html],
             browsers = browsers,
