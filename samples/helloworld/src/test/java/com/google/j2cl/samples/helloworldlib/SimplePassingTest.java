@@ -30,4 +30,9 @@ public class SimplePassingTest {
   public void testAdd() {
     assertEquals(1, 1);
   }
+
+  @Test
+  public void testAddFailed() {
+    assertEquals(2, 1);
+  }
 }
