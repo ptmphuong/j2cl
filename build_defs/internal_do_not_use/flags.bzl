@@ -1,3 +1,5 @@
+# TODO(phpham): check if we really need these flags?
+
 # keep sorted
 USE_TYPES_FOR_OPTIMIZATIONS_FLAGS = [
     "--ambiguate_properties=true",

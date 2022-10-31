@@ -28,6 +28,7 @@ def closure_js_test(
         fail("closure_js_test can not have an empty 'srcs' list")
     if language:
         print("closure_js_test 'language' is removed and now always ES6 strict")
+    # TODO(phpham): handle this
     # for src in srcs:
     #     if not src.endswith("_test.js"):
     #         fail("closure_js_test srcs must be files ending with _test.js")
@@ -70,7 +71,6 @@ def closure_js_test(
             tags = tags,
         )
 
-        ### NEWLY ADDED TO REPLACE PHANTOMJS ###
         if not html:
           gen_test_html(
             name = "gen_%s" % shard,
@@ -78,6 +78,7 @@ def closure_js_test(
           )
           html = "gen_%s" % shard
 
+        # TODO(phpham): Maybe override default browser for chominum-local only?
         if not browsers:
             browsers = ["@io_bazel_rules_webtesting//browsers:chromium-local"]
 

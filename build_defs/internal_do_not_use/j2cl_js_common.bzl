@@ -94,7 +94,6 @@ J2CL_OPTIMIZED_DEFS = [
 ]
 
 # Place holder until we implement unit testing support for open-source.
-# J2CL_TEST_DEFS = []
 J2CL_TEST_DEFS = JS_TEST_FLAGS + USE_TYPES_FOR_OPTIMIZATIONS_FLAGS + [
     # Manage closure deps will strip our outputs in some tests
     "--manage_closure_dependencies=false",
