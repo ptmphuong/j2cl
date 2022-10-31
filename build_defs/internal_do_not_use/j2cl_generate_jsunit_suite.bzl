@@ -75,7 +75,7 @@ def j2cl_generate_jsunit_suite(name, test_class, deps, tags = []):
     out_jar = ":lib" + name + "_lib.jar"
     native.genrule(
         name = name + "_transpile_gen",
-        outs = [name + ".js"],
+        outs = [name + "_test.js"],
         cmd = "\n".join([
             "unzip -q $(location %s) *.testsuite *.json -d zip_out/" % out_jar,
             "cd zip_out/",

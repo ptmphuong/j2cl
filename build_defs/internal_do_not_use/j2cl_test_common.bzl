@@ -3,8 +3,13 @@
 load(":j2cl_java_library.bzl", j2cl_library_rule = "j2cl_library")
 load(":j2cl_generate_jsunit_suite.bzl", "j2cl_generate_jsunit_suite")
 load(":j2cl_util.bzl", "get_java_package")
-load(":closure_js_test.bzl", "closure_js_test")
-load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
+# load(":closure_js_test.bzl", "closure_js_test")
+load(
+    "@io_bazel_rules_closure//closure:defs.bzl",
+    "closure_js_test",
+    "closure_js_binary",
+    "closure_js_library"
+)
 load(":j2cl_js_common.bzl", "J2CL_TEST_DEFS")
 
 # buildifier: disable=unused-variable
@@ -18,7 +23,6 @@ def j2cl_test_common(
         compile = 0,
         platform = "CLOSURE",
         browsers = None,
-        default_browser = ["@io_bazel_rules_webtesting//browsers:chromium-local"],
         extra_defs = [],
         jvm_flags = [],
         tags = [],
@@ -51,6 +55,7 @@ def j2cl_test_common(
       "@com_google_javascript_closure_library//closure/goog/testing:jsunit",
       "@com_google_javascript_closure_library//closure/goog/testing:testsuite",
       "@com_google_j2cl//build_defs/internal_do_not_use:internal_parametrized_test_suite",
+      "@com_google_j2cl//:jre",
     ]
 
     # closure_js_library(
@@ -69,7 +74,7 @@ def j2cl_test_common(
 
     closure_js_test(
         name = name,
-        srcs = [":%s_generated_suite.js" % name],
+        srcs = [":%s_generated_suite_test.js" % name],
         deps = deps,
         browsers = browsers,
         testonly = 1,

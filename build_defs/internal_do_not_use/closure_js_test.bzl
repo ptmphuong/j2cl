@@ -55,7 +55,9 @@ def closure_js_test(
         else:
             ep = entry_points
 
-        deps = deps + [":%s_closure_lib" % shard]
+        deps = deps + [
+            ":%s_closure_lib" % shard,
+        ]
 
         closure_js_binary(
             name = "%s_closure_bin" % shard,
