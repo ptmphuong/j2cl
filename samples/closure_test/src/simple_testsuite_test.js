@@ -8,15 +8,3 @@ goog.require('goog.testing.asserts');
 goog.require('goog.testing.jsunit');
 
 testSuite(new ObjectWrapper());
-
-// class SimpleTest {
-//   constructor() {
-//     this.num = 0;
-//   }
-// 
-//   testSimpleEqual() {
-//     assertEquals(2, 1 + 1);
-//   }
-// }
-// 
-// testSuite(new SimpleTest());
