@@ -12,6 +12,9 @@
 [ExplicitNotNullable] => [$ctor__j2ktnotpassing_ExplicitNotNullable__void]
 [ExplicitNotNullable] => [this.$ctor__java_lang_Object__void();] "j2ktnotpassing.ExplicitNotNullable.<init>"
 [ExplicitNotNullable] => [this.$init__void_$p_j2ktnotpassing_ExplicitNotNullable();] "j2ktnotpassing.ExplicitNotNullable.<init>"
+[testDependentWildcards] => [m_testDependentWildcards__j2ktnotpassing_ExplicitNotNullable_DependentTypeParameters__j2ktnotpassing_ExplicitNotNullable_DependentTypeParameters_$pp_j2ktnotpassing]
+[x] => [x] "x"
+[return x.getThis();] => [return x.m_getThis__j2ktnotpassing_ExplicitNotNullable_DependentTypeParameters_$pp_j2ktnotpassing();] "j2ktnotpassing.ExplicitNotNullable.testDependentWildcards"
 [ExplicitNotNullable] => [$init__void_$p_j2ktnotpassing_ExplicitNotNullable]
 [Function<String, String> i =
       new Function<String, String>() {

@@ -7,6 +7,7 @@ goog.require('java.util.List');
 goog.require('nativebootstrap.Util');
 goog.require('nullability.explicitnotnullable.DefaultNullable');
 goog.require('nullability.explicitnotnullable.ExplicitNotNullable.Consumer');
+goog.require('nullability.explicitnotnullable.ExplicitNotNullable.DependentTypeParameters');
 goog.require('nullability.explicitnotnullable.ExplicitNotNullable.IntFunction');
 goog.require('nullability.explicitnotnullable.ExplicitNotNullable.ParameterizedDefaultNullability');
 goog.require('nullability.explicitnotnullable.ExplicitNotNullable.ParameterizedNonNullable');
@@ -15,6 +16,7 @@ goog.require('nullability.explicitnotnullable.ExplicitNotNullable.Supplier');
 goog.require('vmbootstrap.Arrays');
 goog.require('vmbootstrap.Casts');
 goog.require('vmbootstrap.Objects');
+goog.require('vmbootstrap.primitives.$char');
 
 const ExplicitNotNullable = goog.require('nullability.explicitnotnullable.ExplicitNotNullable$impl');
 exports = ExplicitNotNullable;

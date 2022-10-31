@@ -33,6 +33,30 @@ open class ExplicitNotNullable {
 
  @kotlin.jvm.JvmField var f14_private_2: kotlin.Any? = null
 
+ @kotlin.jvm.JvmField var f15_private_2: kotlin.Array<kotlin.Array<kotlin.String>> = kotlin.arrayOf<kotlin.Array<kotlin.String?>?>() as kotlin.Array<kotlin.Array<kotlin.String>>
+
+ @kotlin.jvm.JvmField var f16_private_2: kotlin.Array<kotlin.Array<kotlin.String>?> = kotlin.arrayOf<kotlin.Array<kotlin.String?>?>() as kotlin.Array<kotlin.Array<kotlin.String>?>
+
+ @kotlin.jvm.JvmField var f17_private_2: kotlin.Array<kotlin.Array<kotlin.String>>? = kotlin.arrayOf<kotlin.Array<kotlin.String?>?>() as kotlin.Array<kotlin.Array<kotlin.String>>?
+
+ @kotlin.jvm.JvmField var f18_private_2: kotlin.Array<kotlin.Array<kotlin.String>?>? = kotlin.arrayOf<kotlin.Array<kotlin.String?>?>() as kotlin.Array<kotlin.Array<kotlin.String>?>?
+
+ @kotlin.jvm.JvmField var f19_private_2: kotlin.Array<kotlin.Array<kotlin.String?>> = kotlin.arrayOf<kotlin.Array<kotlin.String?>?>() as kotlin.Array<kotlin.Array<kotlin.String?>>
+
+ @kotlin.jvm.JvmField var f20_private_2: kotlin.Array<kotlin.Array<kotlin.String?>?> = kotlin.arrayOf<kotlin.Array<kotlin.String?>?>()
+
+ @kotlin.jvm.JvmField var f21_private_2: kotlin.Array<kotlin.Array<kotlin.String?>>? = kotlin.arrayOf<kotlin.Array<kotlin.String?>?>() as kotlin.Array<kotlin.Array<kotlin.String?>>?
+
+ @kotlin.jvm.JvmField var f22_private_2: kotlin.Array<kotlin.Array<kotlin.String?>?>? = kotlin.arrayOf<kotlin.Array<kotlin.String?>?>()
+
+ @kotlin.jvm.JvmField var f23_private_2: kotlin.Array<kotlin.CharArray> = kotlin.arrayOf<kotlin.CharArray?>() as kotlin.Array<kotlin.CharArray>
+
+ @kotlin.jvm.JvmField var f24_private_2: kotlin.Array<kotlin.CharArray?> = kotlin.arrayOf<kotlin.CharArray?>()
+
+ @kotlin.jvm.JvmField var f25_private_2: kotlin.Array<kotlin.CharArray>? = kotlin.arrayOf<kotlin.CharArray?>() as kotlin.Array<kotlin.CharArray>?
+
+ @kotlin.jvm.JvmField var f26_private_2: kotlin.Array<kotlin.CharArray?>? = kotlin.arrayOf<kotlin.CharArray?>()
+
  constructor() {
   this.f13_private_2 = kotlin.Any()
  }
@@ -50,6 +74,19 @@ open class ExplicitNotNullable {
  open fun <T: nullability.explicitnotnullable.ExplicitNotNullable.NullableBound<T>?> methodWithNullableBound() {}
 
  open fun <T: nullability.explicitnotnullable.ExplicitNotNullable.NonNullableBound<T>> methodWithNonNullableBound() {}
+
+ @kotlin.jvm.JvmField var collection: nullability.explicitnotnullable.ExplicitNotNullable.Consumer<*>? = null
+
+ @kotlin.jvm.JvmField var nonNullableCollection: nullability.explicitnotnullable.ExplicitNotNullable.Consumer<*>? = null
+
+ open fun unboundedWildCard(c: nullability.explicitnotnullable.ExplicitNotNullable.Consumer<*>, nc: nullability.explicitnotnullable.ExplicitNotNullable.Consumer<*>) {
+  this.collection = c
+  this.nonNullableCollection = nc
+ }
+
+ open fun testDependentWildcards(x: nullability.explicitnotnullable.ExplicitNotNullable.DependentTypeParameters<*, *>): nullability.explicitnotnullable.ExplicitNotNullable.DependentTypeParameters<*, *> {
+  return x
+ }
 
  companion object {
   @kotlin.jvm.JvmStatic
@@ -152,13 +189,13 @@ open class ExplicitNotNullable {
   fun testListOfWildcard(l: kotlin.collections.MutableList<*>) {}
 
   @kotlin.jvm.JvmStatic
-  fun testListOfWildcardExtendsDefaultNullabilityObject(l: kotlin.collections.MutableList<out kotlin.Any>) {}
+  fun testListOfWildcardExtendsDefaultNullabilityObject(l: kotlin.collections.MutableList<*>) {}
 
   @kotlin.jvm.JvmStatic
   fun testListOfWildcardExtendsNullableObject(l: kotlin.collections.MutableList<*>) {}
 
   @kotlin.jvm.JvmStatic
-  fun testListOfWildcardExtendsNonNullObject(l: kotlin.collections.MutableList<out kotlin.Any>) {}
+  fun testListOfWildcardExtendsNonNullObject(l: kotlin.collections.MutableList<*>) {}
 
   @kotlin.jvm.JvmStatic
   fun testListOfWildcardExtendsDefaultNullabilityString(l: kotlin.collections.MutableList<out kotlin.String>) {}
@@ -219,6 +256,14 @@ open class ExplicitNotNullable {
 
   @kotlin.jvm.JvmStatic
   fun nonNullableAccept(s: kotlin.String) {}
+
+  @kotlin.jvm.JvmStatic
+  fun <T: kotlin.Any> consume(t: T) {}
+
+  @kotlin.jvm.JvmStatic
+  fun testUnboundWildcardTypeArgumentInference(c: nullability.explicitnotnullable.ExplicitNotNullable.Consumer<*>) {
+   nullability.explicitnotnullable.ExplicitNotNullable.consume<nullability.explicitnotnullable.ExplicitNotNullable.Consumer<*>>(c)
+  }
  }
 
  interface NullableBound<T: nullability.explicitnotnullable.ExplicitNotNullable.NullableBound<T>?> {}
@@ -336,6 +381,12 @@ open class ExplicitNotNullable {
 
  fun interface IntFunction<T> {
   fun accept(i: kotlin.Int): T
+ }
+
+ open class DependentTypeParameters<E: kotlin.Any, T: E?> {
+  open fun getThis(): nullability.explicitnotnullable.ExplicitNotNullable.DependentTypeParameters<E, T> {
+   return this
+  }
  }
 }
 

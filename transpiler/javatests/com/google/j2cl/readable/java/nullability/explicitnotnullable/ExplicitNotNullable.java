@@ -42,6 +42,20 @@ public class ExplicitNotNullable {
   private Object f13;
   @Nullable private Object f14;
 
+  private String[][] f15 = {};
+  private String[] @Nullable [] f16 = {};
+  private String @Nullable [][] f17 = {};
+  private String @Nullable [] @Nullable [] f18 = {};
+  private @Nullable String[][] f19 = {};
+  private @Nullable String[] @Nullable [] f20 = {};
+  private @Nullable String @Nullable [][] f21 = {};
+  private @Nullable String @Nullable [] @Nullable [] f22 = {};
+
+  private char[][] f23 = {};
+  private char[] @Nullable [] f24 = {};
+  private char @Nullable [][] f25 = {};
+  private char @Nullable [] @Nullable [] f26 = {};
+
   public ExplicitNotNullable() {
     f13 = new Object();
   }
@@ -338,8 +352,37 @@ public class ExplicitNotNullable {
   }
 
   static void nonNullableAccept(String s) {}
+
+  @Nullable Consumer<?> collection;
+
+  @Nullable Consumer<? extends Object> nonNullableCollection;
+
+  void unboundedWildCard(Consumer<?> c, Consumer<? extends Object> nc) {
+    collection = c;
+    nonNullableCollection = nc;
+  }
+
+  static <T> void consume(T t) {}
+
+  static void testUnboundWildcardTypeArgumentInference(Consumer<?> c) {
+    consume(c);
+  }
+
+  // Replicates wildcard problems in Guava's PairwiseEquivalence.
+  static class DependentTypeParameters<E, T extends @Nullable E> {
+    DependentTypeParameters<E, T> getThis() {
+      return this;
+    }
+  }
+
+  DependentTypeParameters<?, ?> testDependentWildcards(DependentTypeParameters<?, ?> x) {
+    return x;
+    // TODO(b/255955130): This is not yet working. Uncomment when fixed.
+    // return x.getThis();
+  }
 }
 
 class DefaultNullable {
   static void nullableAccept(String s) {}
 }
+

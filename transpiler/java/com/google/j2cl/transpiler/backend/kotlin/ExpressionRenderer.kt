@@ -58,7 +58,6 @@ import com.google.j2cl.transpiler.ast.Variable
 import com.google.j2cl.transpiler.ast.VariableDeclarationExpression
 import com.google.j2cl.transpiler.ast.VariableDeclarationFragment
 import com.google.j2cl.transpiler.ast.VariableReference
-import com.google.j2cl.transpiler.backend.kotlin.ast.companionObjectOrNull
 
 fun Renderer.renderExpression(expression: Expression) {
   when (expression) {
@@ -137,12 +136,12 @@ private fun Renderer.renderBinaryExpression(expression: BinaryExpression) {
   renderRightSubExpression(expression, expression.rightOperand)
 }
 
-private fun Renderer.renderCastExpression(expression: CastExpression) {
-  val castTypeDescriptor = expression.castTypeDescriptor
+private fun Renderer.renderCastExpression(castExpression: CastExpression) {
+  val castTypeDescriptor = castExpression.castTypeDescriptor
   if (castTypeDescriptor is IntersectionTypeDescriptor) {
     // Render cast to intersection type descriptor: (A & B & C) x
     // using smart casts: (x).let { it as A; it as B; it as C; it }
-    renderInParentheses { renderExpression(expression.expression) }
+    renderInParentheses { renderExpression(castExpression.expression) }
     render(".let { ")
     castTypeDescriptor.intersectionTypeDescriptors.forEach {
       render("it as ")
@@ -151,9 +150,9 @@ private fun Renderer.renderCastExpression(expression: CastExpression) {
     }
     render("it }")
   } else {
-    renderExpression(expression.expression)
+    renderLeftSubExpression(castExpression, castExpression.expression)
     render(" as ")
-    renderTypeDescriptor(expression.castTypeDescriptor)
+    renderTypeDescriptor(castExpression.castTypeDescriptor)
   }
 }
 
@@ -213,7 +212,7 @@ private fun Renderer.renderFunctionExpression(functionExpression: FunctionExpres
 }
 
 private fun Renderer.renderInstanceOfExpression(instanceOfExpression: InstanceOfExpression) {
-  renderExpression(instanceOfExpression.expression)
+  renderLeftSubExpression(instanceOfExpression, instanceOfExpression.expression)
   render(" is ")
   val testTypeDescriptor = instanceOfExpression.testTypeDescriptor
   if (
@@ -273,12 +272,8 @@ private fun Renderer.renderNumberLiteral(numberLiteral: NumberLiteral) {
 }
 
 private fun Renderer.renderConditionalExpression(conditionalExpression: ConditionalExpression) {
-  // Conditional expressions are in its own precedence class. So when they are nested in the
-  // in the condition position they need parenthesis, but not in the second or third position.
   render("if ")
-  renderInParentheses {
-    renderLeftSubExpression(conditionalExpression, conditionalExpression.conditionExpression)
-  }
+  renderInParentheses { renderExpression(conditionalExpression.conditionExpression) }
   render(" ")
   renderExpression(conditionalExpression.trueExpression)
   render(" else ")
@@ -439,11 +434,7 @@ private fun Renderer.renderNewInstance(expression: NewInstance) {
   // Render invocation for classes only - interfaces don't need it.
   if (typeDescriptor.isClass) {
     // Explicit label is necessary to workaround https://youtrack.jetbrains.com/issue/KT-54349
-    copy(
-        renderThisReferenceWithLabel =
-          expression.anonymousInnerClass != null && currentType!!.companionObjectOrNull != null
-      )
-      .renderInvocationArguments(expression)
+    copy(renderThisReferenceWithLabel = true).renderInvocationArguments(expression)
   }
 
   expression.anonymousInnerClass?.let { renderTypeBody(it) }
@@ -572,7 +563,10 @@ private fun Renderer.renderQualifier(memberReference: MemberReference) {
 }
 
 private fun Renderer.renderLeftSubExpression(expression: Expression, operand: Expression) {
-  renderExpressionInParens(operand, expression.requiresParensOnLeft(operand))
+  renderExpressionInParens(
+    operand,
+    expression.requiresParensOnLeft(operand) || operand is ConditionalExpression
+  )
 }
 
 private fun Renderer.renderRightSubExpression(expression: Expression, operand: Expression) {

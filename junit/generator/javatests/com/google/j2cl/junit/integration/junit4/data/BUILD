@@ -14,12 +14,8 @@ j2cl_test_integration_test_data(
     platforms = [
         "CLOSURE",
         "WASM",
+        "J2KT",
     ],
-)
-
-java_and_j2cl_library(
-    name = "BeforeAndAfterTestLib",
-    srcs = ["BeforeAndAfterTest.java"],
 )
 
 j2cl_test_integration_test_data(
@@ -139,6 +135,15 @@ j2cl_test_integration_test_data(
 
 j2cl_test_integration_test_data(
     name = "ThrowsInBeforeTest",
+    platforms = [
+        "CLOSURE",
+        "WASM",
+        "J2KT",
+    ],
+)
+
+j2cl_test_integration_test_data(
+    name = "ThrowsInBeforeClassTest",
     platforms = [
         "CLOSURE",
         "WASM",

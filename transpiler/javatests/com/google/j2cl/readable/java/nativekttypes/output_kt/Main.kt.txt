@@ -85,15 +85,19 @@ open class Main {
  }
 
  open fun typeLiterals() {
-  val c1: java.lang.Class<out kotlin.Any>? = nativekttypes.nativekt.KTopLevel::class.javaObjectType
-  val c2: java.lang.Class<out kotlin.Any>? = nativekttypes.nativekt.KTopLevel.KNested::class.javaObjectType
-  val c3: java.lang.Class<out kotlin.Any>? = nativekttypes.nativekt.KTopLevel.KInner::class.javaObjectType
+  val c1: java.lang.Class<*>? = nativekttypes.nativekt.KTopLevel::class.javaObjectType
+  val c2: java.lang.Class<*>? = nativekttypes.nativekt.KTopLevel.KNested::class.javaObjectType
+  val c3: java.lang.Class<*>? = nativekttypes.nativekt.KTopLevel.KInner::class.javaObjectType
  }
 
  open fun disabledVoidMethod() {}
 
  open fun disabledNonVoidMethod(): kotlin.Boolean {
   return false
+ }
+
+ open fun todoMethod(string: kotlin.String?) {
+  TODO("J2KT: not yet supported")
  }
 }
 
