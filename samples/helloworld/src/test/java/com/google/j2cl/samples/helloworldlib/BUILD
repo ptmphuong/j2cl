@@ -7,7 +7,6 @@ j2cl_test(
     srcs = ["HelloWorldTest.java"],
     deps = [
         "//src/main/java/com/google/j2cl/samples/helloworldlib",
-        "@com_google_j2cl//:jre",
         "@com_google_j2cl//third_party:junit-j2cl",
     ],
 )
@@ -16,7 +15,6 @@ j2cl_test(
     name = "SimplePassingTest",
     srcs = ["SimplePassingTest.java"],
     deps = [
-        "@com_google_j2cl//:jre",
         "@com_google_j2cl//third_party:junit-j2cl",
     ],
 )

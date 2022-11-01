@@ -53,7 +53,7 @@ def j2cl_test_common(
       "@com_google_javascript_closure_library//closure/goog/testing:jsunit",
       "@com_google_javascript_closure_library//closure/goog/testing:testsuite",
       "@com_google_javascript_closure_library//closure/goog/testing:testcase",
-      "@com_google_j2cl//build_defs/internal_do_not_use:internal_parametrized_test_suite",
+      # "@com_google_j2cl//build_defs/internal_do_not_use:internal_parametrized_test_suite",
     ]
 
     # TODO(phpham): undo hardcode. pass the direct target here
