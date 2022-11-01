@@ -1,19 +1,15 @@
-"""j2cl_test build macro"""
+"""Common utilities for creating J2CL test targets"""
 
 load(":j2cl_java_library.bzl", j2cl_library_rule = "j2cl_library")
-load(":j2cl_generate_jsunit_suite.bzl", "j2cl_generate_jsunit_suite")
+load(":j2cl_generate_jsunit_suite.bzl", j2cl_generate_testsuite = "j2cl_generate_jsunit_suite")
 load(":j2cl_util.bzl", "get_java_package")
 load(":closure_js_test.bzl", "closure_js_test")
-load(
-    "@io_bazel_rules_closure//closure:defs.bzl",
-    # "closure_js_test",
-    "closure_js_library"
-)
 load(":j2cl_js_common.bzl", "J2CL_TEST_DEFS")
 
 # buildifier: disable=unused-variable
 def j2cl_test_common(
         name,
+        deps,
         runtime_deps = [],
         test_class = None,
         data = [],
@@ -28,19 +24,22 @@ def j2cl_test_common(
         **kwargs):
     """Macro for running a JUnit test cross compiled as a web test"""
 
-    exports = (kwargs.get("deps") or []) + runtime_deps
-    test_class = _get_test_class(name, native.package_name(), test_class)
-    generated_suite_name = name + "_generated_suite"
+    deps = deps + ["@com_google_j2cl//:jre"]
+    exports = deps + runtime_deps
 
     j2cl_library_rule(
         name = "%s_testlib" % name,
+        deps = deps,
         exports = exports,
         testonly = 1,
         tags = tags,
         **kwargs
     )
 
-    j2cl_generate_jsunit_suite(
+    test_class = _get_test_class(name, native.package_name(), test_class)
+    generated_suite_name = name + "_generated_suite"
+
+    j2cl_generate_testsuite(
         name = generated_suite_name,
         test_class = test_class,
         deps = [":%s_testlib" % name],
@@ -62,9 +61,7 @@ def j2cl_test_common(
         name = name,
         # srcs = ["//src/test/java/com/google/j2cl/samples/helloworldlib:SimplePassingTest_test.js"],
         srcs = ["//src/test/java/com/google/j2cl/samples/helloworldlib:HelloWorldTest_test.js"],
-        deps = deps + [
-             "@com_google_j2cl//:jre",
-        ],
+        deps = deps,
         browsers = browsers,
         testonly = 1,
         timeout = "short",
