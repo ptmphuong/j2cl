@@ -28,10 +28,9 @@ def closure_js_test(
         fail("closure_js_test can not have an empty 'srcs' list")
     if language:
         print("closure_js_test 'language' is removed and now always ES6 strict")
-    # TODO(phpham): handle this
-    # for src in srcs:
-    #     if not src.endswith("_test.js"):
-    #         fail("closure_js_test srcs must be files ending with _test.js")
+    for src in srcs:
+        if not src.endswith("_test.js"):
+            fail("closure_js_test srcs must be files ending with _test.js")
     if len(srcs) == 1:
         work = [(name, srcs)]
     else:

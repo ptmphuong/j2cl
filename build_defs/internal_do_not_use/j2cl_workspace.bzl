@@ -11,6 +11,7 @@ load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
 load("@io_bazel_rules_webtesting//web:repositories.bzl", "web_test_repositories")
 load("@io_bazel_rules_webtesting//web/versioned:browsers-0.3.3.bzl", "browser_repositories")
 load("@io_bazel_rules_webtesting//web:go_repositories.bzl", "go_repositories", "go_internal_repositories")
+load("@io_bazel_rules_webtesting//web:java_repositories.bzl", "java_repositories")
 
 _MAVEN_CENTRAL_URLS = ["https://repo1.maven.org/maven2/"]
 
@@ -40,6 +41,8 @@ def setup_j2cl_workspace(**kwargs):
     go_repositories()
 
     go_internal_repositories()
+
+    java_repositories()
 
     jvm_maven_import_external(
         name = "com_google_auto_common",

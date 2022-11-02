@@ -14,3 +14,17 @@ go_binary(
         "@io_bazel_rules_webtesting//go/webtest:go_default_library",
     ],
 )
+
+java_binary(
+    name = "jwebtest",
+    testonly = 1,
+    srcs = ["webtest.java"],
+    main_class = "tools.MyWebTest",
+    visibility = ["//visibility:public"],
+    args = ["--test_url", "some.url"],
+    deps = [
+        "@org_seleniumhq_selenium_selenium_api",
+        "@org_seleniumhq_selenium_selenium_remote_driver",
+        "@io_bazel_rules_webtesting//java/com/google/testing/web:web",
+    ],
+)

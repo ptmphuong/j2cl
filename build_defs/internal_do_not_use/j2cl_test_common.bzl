@@ -37,6 +37,7 @@ def j2cl_test_common(
     )
 
     test_class = _get_test_class(name, native.package_name(), test_class)
+    print("my_test_class: " + test_class)
     generated_suite_name = name + "_generated_suite"
 
     j2cl_generate_testsuite(
@@ -44,6 +45,24 @@ def j2cl_test_common(
         test_class = test_class,
         deps = [":%s_testlib" % name],
         tags = tags,
+    )
+
+    out_zip = ":%s_generated_suite.js.zip" % name
+    testsuite_file_name = name + "_test.js"
+
+    native.genrule(
+        name = "gen" + name + "_test.js",
+        srcs = [out_zip],
+        outs = [
+            testsuite_file_name,
+        ],
+        cmd = "\n".join([
+            "unzip -q -o $(locations %s) *.js -d zip_out/" % out_zip,
+            "cd zip_out/",
+            "mkdir -p ../$(RULEDIR)",
+            "for f in $$(find -name *.js); do mv $$f ../$@; done",
+        ]),
+        testonly = 1,
     )
 
     deps = [
@@ -56,17 +75,14 @@ def j2cl_test_common(
       # "@com_google_j2cl//build_defs/internal_do_not_use:internal_parametrized_test_suite",
     ]
 
-    # TODO(phpham): undo hardcode. pass the direct target here
     closure_js_test(
         name = name,
-        # srcs = ["//src/test/java/com/google/j2cl/samples/helloworldlib:SimplePassingTest_test.js"],
-        srcs = ["//src/test/java/com/google/j2cl/samples/helloworldlib:HelloWorldTest_test.js"],
+        srcs = [":" + testsuite_file_name],
         deps = deps,
         browsers = browsers,
         testonly = 1,
         timeout = "short",
-        # entry_points = ["javatests.com.google.j2cl.samples.helloworldlib.SimplePassingTest_AdapterSuite"],
-        entry_points = ["javatests.com.google.j2cl.samples.helloworldlib.HelloWorldTest_AdapterSuite"],
+        entry_points = ["javatests." + test_class + "_AdapterSuite",],
         # defs = J2CL_TEST_DEFS,
     )
 
