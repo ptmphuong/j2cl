@@ -4,10 +4,9 @@ load("@io_bazel_rules_go//go:def.bzl", "go_binary")
 exports_files(["LICENSE", "gen_test_html.template"])
 
 go_binary(
-    name = "webtest",
+    name = "gwebtest",
     testonly = 1,
     srcs = ["webtest.go"],
-    # visibility = ["//:__subpackages__"],
     visibility = ["//visibility:public"],
     deps = [
         "@com_github_tebeka_selenium//:go_default_library",
@@ -16,7 +15,7 @@ go_binary(
 )
 
 java_binary(
-    name = "jwebtest",
+    name = "webtest",
     testonly = 1,
     srcs = ["webtest.java"],
     main_class = "tools.MyWebTest",
