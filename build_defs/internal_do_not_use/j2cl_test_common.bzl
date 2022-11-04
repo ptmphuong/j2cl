@@ -37,7 +37,6 @@ def j2cl_test_common(
     )
 
     test_class = _get_test_class(name, native.package_name(), test_class)
-    print("my_test_class: " + test_class)
     generated_suite_name = name + "_generated_suite"
 
     j2cl_generate_testsuite(

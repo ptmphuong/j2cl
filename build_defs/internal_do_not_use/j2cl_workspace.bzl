@@ -3,6 +3,8 @@
 load("@bazel_skylib//lib:versions.bzl", "versions")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_jar")
 load("@bazel_tools//tools/build_defs/repo:jvm.bzl", "jvm_maven_import_external")
+load("@bazel_tools//tools/build_defs/repo:java.bzl", "java_import_external")
+
 load("@io_bazel_rules_closure//closure:repositories.bzl", "rules_closure_dependencies")
 load("@io_bazel_rules_kotlin//kotlin:kotlin.bzl", "kotlin_repositories", "kt_register_toolchains")
 
@@ -43,6 +45,25 @@ def setup_j2cl_workspace(**kwargs):
     go_internal_repositories()
 
     java_repositories()
+
+    java_import_external(
+        name = "org_seleniumhq_selenium_selenium_support",
+        jar_sha256 = "2c74196d15277ce6003454d72fc3434091dbf3ba65060942719ba551509404d8",
+        jar_urls = [
+            "https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-support/3.141.59/selenium-support-3.141.59.jar",
+        ],
+        licenses = ["notice"],  # The Apache Software License, Version 2.0
+        testonly_ = 1,
+        deps = [
+            "@com_google_guava_guava",
+            "@net_bytebuddy_byte_buddy",
+            "@com_squareup_okhttp3_okhttp",
+            "@com_squareup_okio_okio",
+            "@org_apache_commons_commons_exec",
+            "@org_seleniumhq_selenium_selenium_api",
+            "@org_seleniumhq_selenium_selenium_remote_driver",
+        ],
+    )
 
     jvm_maven_import_external(
         name = "com_google_auto_common",

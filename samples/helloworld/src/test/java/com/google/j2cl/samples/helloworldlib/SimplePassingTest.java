@@ -26,13 +26,19 @@ import org.junit.runners.JUnit4;
  */
 @RunWith(JUnit4.class)
 public class SimplePassingTest {
+
   @Test
   public void testAdd() {
     assertEquals(1, 1);
   }
 
-  @Test
-  public void testAddFailed() {
-    assertEquals(2, 1);
-  }
+  // @Test
+  // public void testAddFailed() {
+  //   assertEquals(2, 1);
+  // }
+
+  // @Test
+  // public void testAddFailedLast() {
+  //   assertEquals(5, 1);
+  // }
 }
