@@ -17,7 +17,8 @@ go_binary(
 java_binary(
     name = "webtest",
     testonly = 1,
-    srcs = ["webtest.java"],
+    srcs = glob(["*.java"]),
+    # srcs = ["webtest.java"],
     main_class = "tools.MyWebTest",
     visibility = ["//visibility:public"],
     args = ["--test_url", "some.url"],

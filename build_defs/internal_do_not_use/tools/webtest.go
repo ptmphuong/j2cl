@@ -18,7 +18,7 @@ import (
 var (
 	testURL = flag.String("test_url", "/demo/hello_test.html", "Initial URL to start the tests.")
 	host    = flag.String("host", "localhost", "Host to bind static server to.")
-	debug   = flag.Bool("debug", false, "Enable verbose logging.")
+	debug   = flag.Bool("debug", true, "Enable verbose logging.")
 )
 
 func main() {
@@ -40,10 +40,13 @@ func main() {
 		*testURL = "/" + *testURL
 	}
 
+	log.Printf("mylog testURL: %s", *testURL)
+
 	cwdir, err := os.Getwd()
 	if err != nil {
 		log.Fatalf("getwd: %v", err)
 	}
+
 	addr, err := serve(cwdir, *host)
 	if err != nil {
 		log.Fatalf("serve: %v", err)
