@@ -2,8 +2,8 @@
 
 load("@io_bazel_rules_webtesting//web:web.bzl", "web_test_suite")
 load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
-load("@io_bazel_rules_go//go:def.bzl", "go_binary")
 load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_binary")
+load("@io_bazel_rules_closure//closure:webfiles/web_library.bzl", "web_library")
 
 def closure_js_test(
         name,
@@ -79,9 +79,42 @@ def closure_js_test(
           )
           html = "gen_%s" % shard
 
-        # TODO(phpham): Maybe override default browser for chominum-local only?
+        print("html is: " + html)
+
         if not browsers:
             browsers = ["@io_bazel_rules_webtesting//browsers:chromium-local"]
+
+        # serve js files
+        # web_library(
+        #     name = "%s_webfiles" % shard,
+        #     srcs = [":%s_closure_bin" % shard],
+        #     path = "/",
+        #     testonly = True,
+        # )
+
+        # web_library(
+        #     name = "%s_fileserver" % shard,
+        #     srcs = [
+        #         "gen_SimplePassingTest.html",
+        #         # "$(location %s)" % html,
+        #     ],
+        #     path = "/",
+        #     deps = [":%s_webfiles" % shard],
+        #     port = "8500",
+        #     testonly = True,
+        # )
+
+        # web_test_suite(
+        #     name = shard,
+        #     data = [html],
+        #     launcher = ":%s_fileserver" % shard,
+        #     test = "@com_google_j2cl//build_defs/internal_do_not_use/tools:webdriver",
+        #     args = ["--test_url", "$(location %s)" % html],
+        #     browsers = browsers,
+        #     tags = ["no-sandbox", "native"],
+        #     visibility = visibility,
+        #     **kwargs
+        # )
 
         web_test_suite(
             name = shard,

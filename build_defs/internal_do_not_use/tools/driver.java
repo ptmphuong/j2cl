@@ -20,26 +20,26 @@ import java.net.ServerSocket;
 import java.net.InetSocketAddress;
 import java.time.Duration;
 import java.io.IOException;
-import tools.FileServerHandler;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-class MyWebTest {
+class MyWebDriver {
   public static void main(String args[]) throws IOException {
     String testURL = args[1];
+    testURL = "gen_SimplePassingTest.html";
     if (!testURL.startsWith("/")) {
       testURL = "/" + testURL;
     }
     logInfo("testURL is: " + testURL);
 
-    // set up server
-    int port = PortProber.findFreePort();
-    String cwd = System.getProperty("user.dir");
-    HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
-    HttpContext context = server.createContext("/", new FileServerHandler(cwd));
-    // server.setExecutor(null);
-    server.start();
+    // // set up server
+    // int port = PortProber.findFreePort();
+    // String cwd = System.getProperty("user.dir");
+    // HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
+    // HttpContext context = server.createContext("/", new FileServerHandler(cwd));
+    // // server.setExecutor(null);
+    // server.start();
 
-    String runURL = "http://localhost:" + port + testURL;
+    String runURL = "http://localhost:" + 8500 + testURL;
     logInfo("RunURL is: " + runURL);
 
     // set up webdriver
@@ -68,11 +68,12 @@ class MyWebTest {
     boolean allTestsPassed = (boolean) ((JavascriptExecutor) driver).executeScript("return window.top.G_testRunner.isSuccess();");
 
     driver.quit();
-    server.stop(0);
+    // server.stop(0);
 
     if (!allTestsPassed) {
       System.exit(1);
     }
+    throw new RuntimeException("hello");
   }
 
   private static void logInfo(String s) {

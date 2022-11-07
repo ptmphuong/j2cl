@@ -37,8 +37,8 @@ public class SimplePassingTest {
     assertEquals(2, 1);
   }
 
-  // @Test
-  // public void testAddFailedLast() {
-  //   assertEquals(5, 1);
-  // }
+  @Test
+  public void testAddFailedLast() {
+    assertEquals(5, 1);
+  }
 }
