@@ -12,6 +12,9 @@ import org.openqa.selenium.net.PortProber;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.support.ui.FluentWait;
 
+import com.sun.net.httpserver.HttpServer;
+import com.sun.net.httpserver.HttpContext;
+
 import java.util.logging.Logger;
 import java.net.ServerSocket;
 import java.net.InetSocketAddress;
@@ -23,46 +26,45 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 class MyWebTest {
   public static void main(String args[]) throws IOException {
     String testURL = args[1];
-    if (!testURL.startswith("/") {
+    if (!testURL.startsWith("/")) {
       testURL = "/" + testURL;
     }
-    logInfo("testURL is: " + testURL);
+    log("testURL is: " + testURL);
 
     // set up server
     int port = PortProber.findFreePort();
     String cwd = System.getProperty("user.dir");
     HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
     HttpContext context = server.createContext("/", new FileServerHandler(cwd));
-    // server.setExecutor(null);
     server.start();
 
     String runURL = "http://localhost:" + port + testURL;
-    logInfo("RunURL is: " + runURL);
+    log("RunURL is: " + runURL);
 
     // set up webdriver
     WebDriver driver = new WebTest().newWebDriverSession();
     driver.manage().timeouts().setScriptTimeout(60, SECONDS);
     driver.get(runURL);
 
+    // doc: https://google.github.io/closure-library/api/goog.testing.TestRunner.html
     // wait for tests to finish
     new FluentWait<>((JavascriptExecutor) driver)
         .pollingEvery(Duration.ofMillis(100))
         .withTimeout(Duration.ofSeconds(5))
         .until(executor -> {
-          boolean finishedSuccessfully = executor.executeScript("return window.top.G_testRunner.isFinished()");
+          boolean finishedSuccessfully = (boolean) executor.executeScript("return window.top.G_testRunner.isFinished()");
           if (!finishedSuccessfully) {
-            logErr("G_testRunner has not finished successfully");
+            log("G_testRunner has not finished successfully");
           }
-          return;
+          return true;
         }
         );
 
-    // doc: https://google.github.io/closure-library/api/goog.testing.TestRunner.html
     // get test results
-    String report = ((JavascriptExecutor) driver).executeScript("return window.top.G_testRunner.getReport();");
-    logInfo(report);
+    String report = ((JavascriptExecutor) driver).executeScript("return window.top.G_testRunner.getReport();").toString();
+    log(report);
 
-    boolean allTestsPassed = ((JavascriptExecutor) driver).executeScript("return window.top.G_testRunner.isSuccess();");
+    boolean allTestsPassed = (boolean) ((JavascriptExecutor) driver).executeScript("return window.top.G_testRunner.isSuccess();");
 
     driver.quit();
     server.stop(0);
@@ -72,12 +74,8 @@ class MyWebTest {
     }
   }
 
-  private static void logInfo(String s) {
+  private static void log(String s) {
     Logger.getGlobal().info(s);
-  }
-
-  private static void logErr(String s) {
-    Logger.getGlobal().error(s);
   }
 }
 
