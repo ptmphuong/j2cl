@@ -122,6 +122,7 @@ j2cl_library(
     name = "junit-j2cl",
     testonly = 1,
     exports = ["//:junit"],
+    visibility = ["//visibility:public"],
 )
 
 java_library(

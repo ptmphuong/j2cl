@@ -4,9 +4,17 @@ package(licenses = ["notice"])
 
 j2cl_test(
     name = "HelloWorldTest",
-    srcs = glob(["*.java"]),
+    srcs = ["HelloWorldTest.java"],
     deps = [
         "//src/main/java/com/google/j2cl/samples/helloworldlib",
+        "@com_google_j2cl//third_party:junit-j2cl",
+    ],
+)
+
+j2cl_test(
+    name = "SimplePassingTest",
+    srcs = ["SimplePassingTest.java"],
+    deps = [
         "@com_google_j2cl//third_party:junit-j2cl",
     ],
 )

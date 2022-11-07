@@ -53,9 +53,9 @@ def j2cl_generate_jsunit_suite(name, test_class, deps, tags = []):
         name = name + "_lib",
         srcs = [test_input],
         deps = deps + [
-            "//build_defs/internal_do_not_use:internal_junit_runtime",
-            "//third_party/javascript/closure/testing:testcase",
-            "//third_party/java/gwt:gwt-jsinterop-annotations-j2cl",
+            "@com_google_j2cl//build_defs/internal_do_not_use:internal_junit_runtime",
+            "@com_google_j2cl//:jsinterop-annotations-j2cl",
+            "@com_google_javascript_closure_library//closure/goog/testing:testcase",
         ],
         testonly = 1,
         javacopts = ["-AtestPlatform=CLOSURE"],

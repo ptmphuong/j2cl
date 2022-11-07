@@ -3,8 +3,17 @@
 load("@bazel_skylib//lib:versions.bzl", "versions")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_jar")
 load("@bazel_tools//tools/build_defs/repo:jvm.bzl", "jvm_maven_import_external")
+load("@bazel_tools//tools/build_defs/repo:java.bzl", "java_import_external")
+
 load("@io_bazel_rules_closure//closure:repositories.bzl", "rules_closure_dependencies")
 load("@io_bazel_rules_kotlin//kotlin:kotlin.bzl", "kotlin_repositories", "kt_register_toolchains")
+
+load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
+load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
+load("@io_bazel_rules_webtesting//web:repositories.bzl", "web_test_repositories")
+load("@io_bazel_rules_webtesting//web/versioned:browsers-0.3.3.bzl", "browser_repositories")
+load("@io_bazel_rules_webtesting//web:go_repositories.bzl", "go_repositories", "go_internal_repositories")
+load("@io_bazel_rules_webtesting//web:java_repositories.bzl", "java_repositories")
 
 _MAVEN_CENTRAL_URLS = ["https://repo1.maven.org/maven2/"]
 
@@ -16,6 +25,44 @@ def setup_j2cl_workspace(**kwargs):
     rules_closure_dependencies(
         omit_com_google_auto_common = True,
         **kwargs
+    )
+
+    go_rules_dependencies()
+
+    go_register_toolchains(version = "1.19.1")
+
+    gazelle_dependencies()
+
+    web_test_repositories()
+
+    browser_repositories(
+        chromium = True,
+        firefox = True,
+    )
+
+    go_repositories()
+
+    go_internal_repositories()
+
+    java_repositories()
+
+    java_import_external(
+        name = "org_seleniumhq_selenium_selenium_support",
+        jar_sha256 = "2c74196d15277ce6003454d72fc3434091dbf3ba65060942719ba551509404d8",
+        jar_urls = [
+            "https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-support/3.141.59/selenium-support-3.141.59.jar",
+        ],
+        licenses = ["notice"],  # The Apache Software License, Version 2.0
+        testonly_ = 1,
+        deps = [
+            "@com_google_guava_guava",
+            "@net_bytebuddy_byte_buddy",
+            "@com_squareup_okhttp3_okhttp",
+            "@com_squareup_okio_okio",
+            "@org_apache_commons_commons_exec",
+            "@org_seleniumhq_selenium_selenium_api",
+            "@org_seleniumhq_selenium_selenium_remote_driver",
+        ],
     )
 
     jvm_maven_import_external(
