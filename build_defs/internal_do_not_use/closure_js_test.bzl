@@ -2,7 +2,6 @@
 
 load("@io_bazel_rules_webtesting//web:web.bzl", "web_test_suite")
 load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
-load("@io_bazel_rules_go//go:def.bzl", "go_binary")
 load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_binary")
 
 def closure_js_test(
