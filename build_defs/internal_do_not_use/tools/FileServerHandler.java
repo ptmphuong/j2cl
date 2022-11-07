@@ -1,18 +1,14 @@
 package tools;
 
-import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpServer;
+// import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.Headers;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ByteArrayInputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -32,7 +28,8 @@ public final class FileServerHandler implements HttpHandler {
   public void handle(HttpExchange exchange) throws IOException {
       Path path = Paths.get(
           rootDir,
-          URLDecoder.decode(exchange.getRequestURI().toString(), "UTF-8")
+          // URLDecoder.decode(exchange.getRequestURI().toString(), "UTF-8")
+          URLDecoder.decode(exchange.getRequestURI().toString(), UTF_8)
       ).toAbsolutePath();
 
       if (path != null) {

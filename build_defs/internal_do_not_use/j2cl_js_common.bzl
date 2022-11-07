@@ -8,12 +8,6 @@ load(
     "web_library",
 )
 
-load(
-    ":flags.bzl",
-    "JS_TEST_FLAGS",
-    "USE_TYPES_FOR_OPTIMIZATIONS_FLAGS",
-)
-
 def create_js_lib_struct(j2cl_info, extra_providers = []):
     return struct(
         providers = [j2cl_info] + extra_providers,
@@ -94,16 +88,4 @@ J2CL_OPTIMIZED_DEFS = [
 ]
 
 # Place holder until we implement unit testing support for open-source.
-J2CL_TEST_DEFS = JS_TEST_FLAGS + USE_TYPES_FOR_OPTIMIZATIONS_FLAGS + [
-    # Manage closure deps will strip our outputs in some tests
-    "--manage_closure_dependencies=false",
-    # Enable assert statements for tests (as java_test does the same)
-    "--remove_j2cl_asserts=false",
-    # turn off the closure debug loader since it is causing warnings
-    # in bundled mode
-    "--define=goog.ENABLE_DEBUG_LOADER=false",
-    # enables source maps for tests used in stack trace deobfuscation
-    "--apply_input_source_maps",
-    # set the naming pattern for the source map output
-    "--create_source_map=%outname%.sourcemap",
-]
+J2CL_TEST_DEFS = []
