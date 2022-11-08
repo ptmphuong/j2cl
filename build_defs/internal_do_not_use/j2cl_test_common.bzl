@@ -2,13 +2,24 @@
 
 Takes Java source that contains JUnit tests, translates it into JS
 and packages it into web test targets for testing.
+
+Example use:
+
+j2cl_test(
+    name = "MyTest",
+    srcs = ["MyTest.java"],
+    deps = [
+        ":Bar", # Directly depends on j2cl_library(name="Bar")
+        "@com_google_j2cl//third_party:junit-j2cl",
+    ],
+)
 """
 
 load(":j2cl_library.bzl", j2cl_library_rule = "j2cl_library")
-load(":j2cl_generate_jsunit_suite.bzl", j2cl_generate_testsuite = "j2cl_generate_jsunit_suite")
+load(":j2cl_generate_jsunit_suite.bzl", "j2cl_generate_jsunit_suite")
 load(":j2cl_util.bzl", "get_java_package")
 load(":closure_js_test.bzl", "closure_js_test")
-# load(":j2cl_js_common.bzl", "J2CL_TEST_DEFS")
+# load(":j2cl_js_common.bzl", "J2CL_TEST_DEFS") #TODO: Do we need to add these flags?
 
 _STRIP_JSUNIT_PARAMETERS = [
     "args",
@@ -43,7 +54,21 @@ def _get_test_class(name, build_package, test_class):
         name = name[:-9]
     return test_class or get_java_package(build_package) + "." + name
 
-# buildifier: disable=unused-variable
+def _verify_attributes(runtime_deps, **kwargs):
+    if not kwargs.get("srcs"):
+        # Disallow deps without srcs
+        if kwargs.get("deps"):
+            fail("deps not allowed without srcs; move to runtime_deps?")
+
+        # Need to have runtime deps if there are no sources
+        if not runtime_deps:
+            fail("without srcs, runtime_deps required")
+
+    # Disallow exports since we use them internally to forward deps to
+    # j2cl_generate_jsunit_suite.
+    if "exports" in kwargs:
+        fail("using exports on j2cl_test is not supported")
+
 def j2cl_test_common(
         name,
         deps = [],
@@ -61,7 +86,17 @@ def j2cl_test_common(
         **kwargs):
     """Macro for running a JUnit test cross compiled as a web test"""
 
+    _verify_attributes(runtime_deps, **kwargs)
+
     j2cl_parameters = _strip_jsunit_parameters(kwargs)
+
+    # This library serves two purposes:
+    #   - Compile srcs files
+    #   - Reexport all deps so that they are available to our code generation
+    #     within j2cl_generate_jsunit_suite.
+    #
+    # Reexporting is necessary since generated code refers to test classes
+    # which can be either in this library, its deps or its runtime deps.
     exports = deps + runtime_deps
 
     j2cl_library_rule(
@@ -76,7 +111,7 @@ def j2cl_test_common(
     test_class = _get_test_class(name, native.package_name(), test_class)
     generated_suite_name = name + "_generated_suite"
 
-    j2cl_generate_testsuite(
+    j2cl_generate_jsunit_suite(
         name = generated_suite_name,
         test_class = test_class,
         deps = [":%s_testlib" % name],
@@ -108,7 +143,6 @@ def j2cl_test_common(
       "@com_google_javascript_closure_library//closure/goog/testing:jsunit",
       "@com_google_javascript_closure_library//closure/goog/testing:testsuite",
       "@com_google_javascript_closure_library//closure/goog/testing:testcase",
-      # "@com_google_j2cl//build_defs/internal_do_not_use:internal_parametrized_test_suite",
     ]
 
     closure_js_test(

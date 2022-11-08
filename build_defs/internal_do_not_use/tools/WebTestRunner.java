@@ -4,7 +4,7 @@ package tools;
  *  This program starts an HTTP server that serves runfiles.
  *  It uses a webdriver to load the generated test runner HTML file
  *  on the browser. Once the page is loaded, it polls the Closure
- *  Library repeated to check if the tests are finished, and logs results.
+ *  Library repeatedly to check if the tests are finished, and logs results.
  */
 
 import com.google.testing.web.WebTest;
@@ -29,7 +29,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 class WebTestRunner {
   public static void main(String args[]) throws IOException {
-    // TODO: What's a good way to parse args?
+    // TODO: What's a good way to parse args? Ex: --test-url /srcs/gen_HelloWorldTest.html
     String testURL = args[1];
     if (!testURL.startsWith("/")) {
       testURL = "/" + testURL;

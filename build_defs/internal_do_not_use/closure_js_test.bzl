@@ -1,8 +1,11 @@
 """Runs JavaScript unit tests inside a headless web browser"""
 
 load("@io_bazel_rules_webtesting//web:web.bzl", "web_test_suite")
-load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
-load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_binary")
+load(
+    "@io_bazel_rules_closure//closure:defs.bzl",
+    "closure_js_library",
+    "closure_js_binary"
+)
 
 def closure_js_test(
         name,
