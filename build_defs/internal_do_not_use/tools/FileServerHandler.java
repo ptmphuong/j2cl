@@ -1,7 +1,10 @@
 package tools;
 
+/*
+ * Custom file server handler used by WebTestRunner.java to serve runfiles.
+ */
+
 import com.sun.net.httpserver.HttpExchange;
-// import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.Headers;
 
@@ -19,7 +22,6 @@ import java.net.URLDecoder;
 
 public final class FileServerHandler implements HttpHandler {
   private String rootDir;
-  private String mime = "text/html";
 
   public FileServerHandler(String rootDir) {
     this.rootDir = rootDir;
@@ -28,12 +30,11 @@ public final class FileServerHandler implements HttpHandler {
   public void handle(HttpExchange exchange) throws IOException {
       Path path = Paths.get(
           rootDir,
-          // URLDecoder.decode(exchange.getRequestURI().toString(), "UTF-8")
           URLDecoder.decode(exchange.getRequestURI().toString(), UTF_8)
       ).toAbsolutePath();
 
       if (path != null) {
-          exchange.setAttribute("request-path", path.toString());  // store for OutputFilter
+          exchange.setAttribute("request-path", path.toString()); 
           if (!Files.exists(path) || !Files.isReadable(path)) {
             handleNotFound(exchange);
           } else {
@@ -47,7 +48,7 @@ public final class FileServerHandler implements HttpHandler {
 
   private void handleServeFile(HttpExchange exchange, Path path) throws IOException {
      var respHdrs = exchange.getResponseHeaders();
-     respHdrs.set("Content-Type", mime);
+     respHdrs.set("Content-Type", "text/html");
      exchange.sendResponseHeaders(200, Files.size(path));
      try (InputStream fis = Files.newInputStream(path);
           OutputStream os = exchange.getResponseBody()) {
@@ -55,20 +56,13 @@ public final class FileServerHandler implements HttpHandler {
      }
   }
 
-    private void handleNotFound(HttpExchange exchange) throws IOException {
-        var bytes = ("<p>Cannot find generated html file at: " +  exchange.getRequestURI().getPath() + "</p>\n").getBytes(UTF_8);
-        exchange.getResponseHeaders().set("Content-Type", "text/html; charset=UTF-8");
+  private void handleNotFound(HttpExchange exchange) throws IOException {
+    var bytes = ("<p>Cannot find generated html file at: " +  exchange.getRequestURI().getPath() + "</p>\n").getBytes(UTF_8);
+    exchange.getResponseHeaders().set("Content-Type", "text/html; charset=UTF-8");
 
-        if (exchange.getRequestMethod().equals("HEAD")) {
-            exchange.getResponseHeaders().set("Content-Length", Integer.toString(bytes.length));
-            exchange.sendResponseHeaders(404, -1);
-        } else {
-            exchange.sendResponseHeaders(404, bytes.length);
-            try (OutputStream os = exchange.getResponseBody()) {
-                os.write(bytes);
-            }
-        }
+    exchange.sendResponseHeaders(404, bytes.length);
+    try (OutputStream os = exchange.getResponseBody()) {
+        os.write(bytes);
     }
-
-
+  }
 }

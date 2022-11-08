@@ -1,4 +1,4 @@
-"""Similar to rules_closure's closure_js_test, but using rules_webtesting's web_test_suite instead of phantomJS"""
+"""Runs JavaScript unit tests inside a headless web browser"""
 
 load("@io_bazel_rules_webtesting//web:web.bzl", "web_test_suite")
 load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
@@ -78,7 +78,6 @@ def closure_js_test(
           )
           html = "gen_%s" % shard
 
-        # TODO(phpham): Maybe override default browser for chominum-local only?
         if not browsers:
             browsers = ["@io_bazel_rules_webtesting//browsers:chromium-local"]
 
@@ -111,8 +110,7 @@ def _gen_test_html_impl(ctx):
     runfiles = ctx.runfiles(files = [ctx.outputs.html_file], collect_default = True)
     return [DefaultInfo(runfiles = runfiles)]
 
-# A rule used by closure_js_test to generate default test.html file
-# suitable for running Closure-based JS tests.
+# Used to generate default test.html file for running Closure-based JS tests.
 # The test_file_js argument specifies the name of the JS file containing tests,
 # typically created with closure_js_binary.
 # The output is created from gen_test_html.template file.

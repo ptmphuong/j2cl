@@ -1,13 +1,15 @@
 package tools;
 
-/**
- *
+/*
+ *  This program starts an HTTP server that serves runfiles.
+ *  It uses a webdriver to load the generated test runner HTML file
+ *  on the browser. Once the page is loaded, it polls the Closure
+ *  Library repeated to check if the tests are finished, and logs results.
  */
 
 import com.google.testing.web.WebTest;
 
 import org.openqa.selenium.WebDriver;
-// import org.openqa.selenium.Capabilities;
 import org.openqa.selenium.net.PortProber;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.support.ui.FluentWait;
@@ -20,11 +22,14 @@ import java.net.ServerSocket;
 import java.net.InetSocketAddress;
 import java.time.Duration;
 import java.io.IOException;
+
 import tools.FileServerHandler;
+
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-class MyWebTest {
+class WebTestRunner {
   public static void main(String args[]) throws IOException {
+    // TODO: What's a good way to parse args?
     String testURL = args[1];
     if (!testURL.startsWith("/")) {
       testURL = "/" + testURL;
@@ -38,15 +43,14 @@ class MyWebTest {
     HttpContext context = server.createContext("/", new FileServerHandler(cwd));
     server.start();
 
-    String runURL = "http://localhost:" + port + testURL;
-    log("RunURL is: " + runURL);
-
     // set up webdriver
     WebDriver driver = new WebTest().newWebDriverSession();
     driver.manage().timeouts().setScriptTimeout(60, SECONDS);
+
+    String runURL = "http://localhost:" + port + testURL;
+    log("RunURL is: " + runURL);
     driver.get(runURL);
 
-    // doc: https://google.github.io/closure-library/api/goog.testing.TestRunner.html
     // wait for tests to finish
     new FluentWait<>((JavascriptExecutor) driver)
         .pollingEvery(Duration.ofMillis(100))
@@ -55,6 +59,7 @@ class MyWebTest {
           boolean finishedSuccessfully = (boolean) executor.executeScript("return window.top.G_testRunner.isFinished()");
           if (!finishedSuccessfully) {
             log("G_testRunner has not finished successfully");
+            System.exit(1);
           }
           return true;
         }
@@ -78,4 +83,3 @@ class MyWebTest {
     Logger.getGlobal().info(s);
   }
 }
-
