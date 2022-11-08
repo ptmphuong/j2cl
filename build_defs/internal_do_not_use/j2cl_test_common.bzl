@@ -1,15 +1,38 @@
 """Common utilities for creating J2CL test targets"""
 
-load(":j2cl_java_library.bzl", j2cl_library_rule = "j2cl_library")
+load(":j2cl_library.bzl", j2cl_library_rule = "j2cl_library")
 load(":j2cl_generate_jsunit_suite.bzl", j2cl_generate_testsuite = "j2cl_generate_jsunit_suite")
 load(":j2cl_util.bzl", "get_java_package")
 load(":closure_js_test.bzl", "closure_js_test")
 load(":j2cl_js_common.bzl", "J2CL_TEST_DEFS")
 
+_STRIP_JSUNIT_PARAMETERS = [
+    "args",
+    "compiler",
+    "deps_mgmt",
+    "distribs",
+    "externs_list",
+    "extra_properties",
+    "instrumentation",
+    "local",
+    "plugins",
+    "shard_count",
+    "size",
+    "test_timeout",
+    "timeout",
+]
+
+def _strip_jsunit_parameters(args):
+    parameters = {}
+    for parameter in args:
+        if not parameter in _STRIP_JSUNIT_PARAMETERS:
+            parameters[parameter] = args[parameter]
+    return parameters
+
 # buildifier: disable=unused-variable
 def j2cl_test_common(
         name,
-        deps,
+        deps = [],
         runtime_deps = [],
         test_class = None,
         data = [],
@@ -24,7 +47,8 @@ def j2cl_test_common(
         **kwargs):
     """Macro for running a JUnit test cross compiled as a web test"""
 
-    deps = deps + ["@com_google_j2cl//:jre"]
+    j2cl_parameters = _strip_jsunit_parameters(kwargs)
+    # deps = deps + ["@com_google_j2cl//:jre"]
     exports = deps + runtime_deps
 
     j2cl_library_rule(
@@ -33,7 +57,7 @@ def j2cl_test_common(
         exports = exports,
         testonly = 1,
         tags = tags,
-        **kwargs
+        **j2cl_parameters
     )
 
     test_class = _get_test_class(name, native.package_name(), test_class)
