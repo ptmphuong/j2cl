@@ -15,6 +15,9 @@
  */
 package java.lang;
 
+import jsinterop.annotations.JsMethod;
+import jsinterop.annotations.JsPackage;
+
 /**
  * Converts integral types to strings. This class is public but hidden so that it can also be used
  * by java.util.Formatter to speed up %d. This class is in java.lang so that it can take advantage
@@ -32,14 +35,10 @@ package java.lang;
  * that we can lose the duplication, but until then this class offers the full set.
  */
 final class IntegralToString {
-  /**
-   * When appending to an AbstractStringBuilder, this thread-local char[] lets us avoid allocation
-   * of a temporary array. (We can't write straight into the AbstractStringBuilder because it's
-   * almost as expensive to work out the exact length of the result as it is to do the formatting.
-   * We could try being conservative and "delete"-ing the unused space afterwards, but then we'd
-   * need to duplicate convertInt and convertLong rather than share the code.)
-   */
-  private static final char[] BUFFER = new char[20];
+
+  private static final int BUFFER_LENGTH = 65;
+  // Note that we can reuse the instance since the String construction will copy the array.
+  private static final char[] BUFFER = new char[BUFFER_LENGTH];
 
   /**
    * These tables are used to special-case toString computation for small values. This serves three
@@ -96,87 +95,28 @@ final class IntegralToString {
 
   private IntegralToString() {}
 
-  /** Equivalent to Integer.toString(i, radix). */
-  public static String intToString(int i, int radix) {
-    if (radix < Character.MIN_RADIX || radix > Character.MAX_RADIX) {
-      radix = 10;
-    }
-    if (radix == 10) {
-      return intToString(i);
-    }
-    /*
-     * If i is positive, negate it. This is the opposite of what one might
-     * expect. It is necessary because the range of the negative values is
-     * strictly larger than that of the positive values: there is no
-     * positive value corresponding to Integer.MIN_VALUE.
-     */
-    boolean negative = false;
-    if (i < 0) {
-      negative = true;
-    } else {
-      i = -i;
-    }
-    int bufLen = radix < 8 ? 33 : 12; // Max chars in result (conservative)
-    char[] buf = new char[bufLen];
-    int cursor = bufLen;
-    do {
-      int q = i / radix;
-      buf[--cursor] = DIGITS[radix * q - i];
-      i = q;
-    } while (i != 0);
-    if (negative) {
-      buf[--cursor] = '-';
-    }
-    return new String(cursor, bufLen - cursor, buf);
-  }
-  /** Equivalent to Integer.toString(i). */
   public static String intToString(int i) {
-    return convertInt(null, i);
+    return intToString(i, 10);
   }
-  /** Equivalent to sb.append(Integer.toString(i)). */
+
+  public static String intToString(int i, int radix) {
+    return new String(fromNumber(i, radix));
+  }
+
+  @JsMethod(namespace = JsPackage.GLOBAL, name = "String.fromNumber")
+  private static native String.NativeString fromNumber(int i, int radix);
+
+  private static final int SMI_MAX = Integer.MAX_VALUE >> 1;
+  private static final int SMI_MIN = Integer.MIN_VALUE >> 1;
+
   public static void appendInt(AbstractStringBuilder sb, int i) {
-    convertInt(sb, i);
-  }
-  /**
-   * Returns the string representation of i and leaves sb alone if sb is null. Returns null and
-   * appends the string representation of i to sb if sb is non-null.
-   */
-  private static String convertInt(AbstractStringBuilder sb, int i) {
-    boolean negative = false;
-    String quickResult = null;
-    if (i < 0) {
-      negative = true;
-      i = -i;
-      if (i < 100) {
-        if (i < 0) {
-          // If -n is still negative, n is Integer.MIN_VALUE
-          quickResult = "-2147483648";
-        } else {
-          quickResult = SMALL_NEGATIVE_VALUES[i];
-          if (quickResult == null) {
-            SMALL_NEGATIVE_VALUES[i] =
-                quickResult = i < 10 ? stringOf('-', ONES[i]) : stringOf('-', TENS[i], ONES[i]);
-          }
-        }
-      }
-    } else {
-      if (i < 100) {
-        quickResult = SMALL_NONNEGATIVE_VALUES[i];
-        if (quickResult == null) {
-          SMALL_NONNEGATIVE_VALUES[i] =
-              quickResult = i < 10 ? stringOf(ONES[i]) : stringOf(TENS[i], ONES[i]);
-        }
-      }
+    // Only use fast path for SMI numbers, otherwise JS is very slow.
+    if (SMI_MIN <= i && i <= SMI_MAX) {
+      sb.append0(intToString(i));
+      return;
     }
-    if (quickResult != null) {
-      if (sb != null) {
-        sb.append0(quickResult);
-        return null;
-      }
-      return quickResult;
-    }
-    int bufLen = 11; // Max number of chars in result
-    char[] buf = (sb != null) ? BUFFER : new char[bufLen];
+    int bufLen = BUFFER_LENGTH;
+    char[] buf = BUFFER;
     int cursor = bufLen;
     // Calculate digits two-at-a-time till remaining digits fit in 16 bits
     while (i >= (1 << 16)) {
@@ -195,15 +135,10 @@ final class IntegralToString {
       buf[--cursor] = DIGITS[r];
       i = q;
     }
-    if (negative) {
+    if (i < 0) {
       buf[--cursor] = '-';
     }
-    if (sb != null) {
-      sb.append0(buf, cursor, bufLen - cursor);
-      return null;
-    } else {
-      return new String(cursor, bufLen - cursor, buf);
-    }
+    sb.append0(buf, cursor, bufLen - cursor);
   }
 
   public static String longToString(long v, int radix) {
@@ -232,8 +167,8 @@ final class IntegralToString {
       v = -v;
     }
 
-    int bufLen = radix < 8 ? 65 : 23; // Max chars in result (conservative)
-    char[] buf = new char[bufLen];
+    int bufLen = BUFFER_LENGTH;
+    char[] buf = BUFFER;
     int cursor = bufLen;
 
     do {
@@ -246,7 +181,7 @@ final class IntegralToString {
       buf[--cursor] = '-';
     }
 
-    return new String(cursor, bufLen - cursor, buf);
+    return new String(buf, cursor, bufLen - cursor);
   }
 
   /** Equivalent to Long.toString(l). */
@@ -264,7 +199,11 @@ final class IntegralToString {
   private static String convertLong(AbstractStringBuilder sb, long n) {
     int i = (int) n;
     if (i == n) {
-      return convertInt(sb, i);
+      if (sb == null) {
+        return intToString(i);
+      }
+      appendInt(sb, i);
+      return null;
     }
     boolean negative = (n < 0);
     if (negative) {
@@ -280,7 +219,7 @@ final class IntegralToString {
       }
     }
     int bufLen = 20; // Maximum number of chars in result
-    char[] buf = (sb != null) ? BUFFER : new char[bufLen];
+    char[] buf = BUFFER;
     int low = (int) (n % 1000000000); // Extract low-order 9 digits
     int cursor = intIntoCharArray(buf, bufLen, low);
     // Zero-pad Low order part to 9 digits
@@ -326,7 +265,7 @@ final class IntegralToString {
       sb.append0(buf, cursor, bufLen - cursor);
       return null;
     } else {
-      return new String(cursor, bufLen - cursor, buf);
+      return new String(buf, cursor, bufLen - cursor);
     }
   }
   /**
@@ -377,8 +316,8 @@ final class IntegralToString {
   private static String intToPowerOfTwoUnsignedString(int value, int shift) {
     final int radix = 1 << shift;
     final int mask = radix - 1;
-    final int bufSize = 32 / shift + 1;
-    char[] buf = new char[bufSize];
+    final int bufSize = BUFFER_LENGTH;
+    char[] buf = BUFFER;
     int pos = bufSize;
     do {
       buf[--pos] = Character.forDigit(value & mask);
@@ -403,8 +342,8 @@ final class IntegralToString {
   private static String longToPowerOfTwoUnsignedString(long value, int shift) {
     final int radix = 1 << shift;
     final int mask = radix - 1;
-    final int bufSize = 64 / shift + 1;
-    char[] buf = new char[bufSize];
+    final int bufSize = BUFFER_LENGTH;
+    char[] buf = BUFFER;
     int pos = bufSize;
     do {
       buf[--pos] = Character.forDigit(((int) value) & mask);
@@ -412,14 +351,5 @@ final class IntegralToString {
     } while (value != 0);
 
     return String.valueOf(buf, pos, bufSize - pos);
-  }
-
-  /**
-   * Returns a string composed of the specified characters. Note that the autoboxing does *not*
-   * result in an extra copy of the char array: we are using a package-private string constructor
-   * that incorporates the "autoboxing array" into the new string.
-   */
-  private static String stringOf(char... args) {
-    return new String(0, args.length, args);
   }
 }

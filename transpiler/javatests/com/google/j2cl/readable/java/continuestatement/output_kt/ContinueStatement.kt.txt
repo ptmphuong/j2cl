@@ -2,11 +2,10 @@
 package continuestatement
 
 import javaemul.lang.*
-import kotlin.jvm.*
 
 open class ContinueStatement {
  open fun test() {
-  LOOP@ while (true) {
+  while (true) {
    LOOP_CONTINUE@ do {
     break@LOOP_CONTINUE
    } while (false)

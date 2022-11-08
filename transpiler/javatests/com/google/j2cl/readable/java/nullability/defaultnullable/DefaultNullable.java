@@ -20,6 +20,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import jsinterop.annotations.JsMethod;
 import jsinterop.annotations.JsNonNull;
+import org.jspecify.nullness.NullMarked;
 import org.jspecify.nullness.Nullable;
 
 public class DefaultNullable {
@@ -312,4 +313,39 @@ public class DefaultNullable {
   static <T> void testListOfWildcardSuperDefaultNullabilityVariable(List<? super T> l) {}
 
   static <T> void testListOfWildcardSuperNullableVariable(List<? super @Nullable T> l) {}
+
+  interface Consumer<T> {
+    void accept(T t);
+  }
+
+  static void testLocalNullability() {
+    Consumer<String> stringConsumer = (Consumer<String>) null;
+    Consumer<@Nullable String> nullableStringConsumer = (Consumer<@Nullable String>) null;
+    Consumer<@JsNonNull String> nonNullStringConsumer = (Consumer<@JsNonNull String>) null;
+
+    boolean b = null instanceof Consumer<?>;
+  }
+
+  @NullMarked
+  interface NullMarkedSupplier<T extends @Nullable Object> {
+    T get();
+  }
+
+  @NullMarked
+  interface NullMarkedConsumer<T extends @Nullable Object> {
+    void accept(T t);
+  }
+
+  @NullMarked
+  interface NullMarkedIntFunction<T extends @Nullable Object> {
+    T accept(int i);
+  }
+
+  static void testNonNullableLambdas() {
+    NullMarkedConsumer<String> lambda = s -> {};
+    NullMarkedSupplier<String> constructorReference = String::new;
+    NullMarkedIntFunction<String[]> newArrayReference = String[]::new;
+  }
+
+  static void accept(String s) {}
 }

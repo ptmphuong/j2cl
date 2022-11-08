@@ -37,13 +37,37 @@ class KotlinGeneratorStage(private val output: OutputUtils.Output, private val p
   }
 
   private fun generateOutputs(compilationUnit: CompilationUnit) {
-    val sourceBuilder = SourceBuilder()
-    val environment = Environment(compilationUnit.buildNameToIdentifierMap())
-    val renderer = Renderer(environment, sourceBuilder, problems)
-    renderer.renderCompilationUnit(compilationUnit)
-    val source = sourceBuilder.build().trimTrailingWhitespaces()
+    val source = renderSource(compilationUnit)
     val path = compilationUnit.packageRelativePath.replace(".java", ".kt")
     output.write(path, source)
+  }
+
+  private fun renderSource(compilationUnit: CompilationUnit): String {
+    val nameToIdentifierMap = compilationUnit.buildNameToIdentifierMap()
+
+    val environment =
+      Environment(
+        nameToIdentifierMap = nameToIdentifierMap,
+        identifierSet = nameToIdentifierMap.values.toSet()
+      )
+
+    val renderedSource = { renderFn: Renderer.() -> Unit ->
+      SourceBuilder()
+        .also { Renderer(environment, it, problems).renderFn() }
+        .build()
+        .trimTrailingWhitespaces()
+    }
+
+    // Render file header, collecting qualified names to import
+    val fileHeaderSource = renderedSource { renderFileHeader(compilationUnit) }
+
+    // Render types, collecting qualified names to import
+    val typesSource = renderedSource { renderTypes(compilationUnit) }
+
+    // Render package and collected imports
+    val packageAndImportsSource = renderedSource { renderPackageAndImports(compilationUnit) }
+
+    return fileHeaderSource + packageAndImportsSource + typesSource
   }
 }
 

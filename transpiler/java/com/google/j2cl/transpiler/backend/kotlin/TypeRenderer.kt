@@ -25,21 +25,23 @@ import com.google.j2cl.transpiler.backend.kotlin.ast.kotlinMembers
 import java.util.stream.Collectors
 
 fun Renderer.renderType(type: Type) {
+  val typeDeclaration = type.declaration
+
   // Don't render KtNative types. We should never see them except readables.
-  if (type.declaration.isKtNative) {
+  if (typeDeclaration.isKtNative) {
     render("// native class ")
-    renderIdentifier(type.declaration.ktSimpleName)
+    renderIdentifier(typeDeclaration.ktSimpleName)
     return
   }
 
-  if (type.isClass && !type.declaration.isFinal) {
-    if (type.declaration.isAbstract) render("abstract ") else render("open ")
+  if (type.isClass && !typeDeclaration.isFinal) {
+    if (typeDeclaration.isAbstract) render("abstract ") else render("open ")
   }
   if (
-    type.enclosingTypeDeclaration != null &&
+    typeDeclaration.enclosingTypeDeclaration != null &&
       type.kind == Kind.CLASS &&
       !type.isStatic &&
-      !type.declaration.isLocal
+      !typeDeclaration.isLocal
   ) {
     render("inner ")
   }
@@ -47,13 +49,13 @@ fun Renderer.renderType(type: Type) {
     when (type.kind) {
       Kind.CLASS -> "class "
       Kind.ENUM -> "enum class "
-      Kind.INTERFACE -> (if (type.declaration.isFunctionalInterface) "fun " else "") + "interface "
+      Kind.INTERFACE -> (if (typeDeclaration.isFunctionalInterface) "fun " else "") + "interface "
     }
   )
-  renderTypeDeclaration(type.declaration)
+  renderTypeDeclaration(typeDeclaration)
 
   renderSuperTypes(type)
-  renderWhereClause(type.declaration.typeParameterDescriptors)
+  renderWhereClause(typeDeclaration.typeParameterDescriptors)
   renderTypeBody(type)
 }
 
@@ -81,20 +83,25 @@ private fun Renderer.renderSuperTypes(type: Type) {
 }
 
 internal fun Renderer.renderTypeBody(type: Type) {
-  copy(currentType = type, renderThisReferenceWithLabel = false).run {
-    render(" ")
-    renderInCurlyBrackets {
-      if (type.isEnum) {
-        renderEnumValues(type)
-      }
+  copy(
+      currentType = type,
+      renderThisReferenceWithLabel = false,
+      localNames = localNames + type.localNames
+    )
+    .run {
+      render(" ")
+      renderInCurlyBrackets {
+        if (type.isEnum) {
+          renderEnumValues(type)
+        }
 
-      val kotlinMembers = type.kotlinMembers
-      if (kotlinMembers.isNotEmpty()) {
-        renderNewLine()
-        renderSeparatedWithEmptyLine(kotlinMembers) { render(it) }
+        val kotlinMembers = type.kotlinMembers
+        if (kotlinMembers.isNotEmpty()) {
+          renderNewLine()
+          renderSeparatedWithEmptyLine(kotlinMembers) { render(it) }
+        }
       }
     }
-  }
 }
 
 private fun Renderer.renderEnumValues(type: Type) {
