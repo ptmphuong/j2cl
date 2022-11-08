@@ -36,14 +36,12 @@ class WebTestRunner {
     }
     log("testURL is: " + testURL);
 
-    // set up server
     int port = PortProber.findFreePort();
     String cwd = System.getProperty("user.dir");
     HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
     HttpContext context = server.createContext("/", new FileServerHandler(cwd));
     server.start();
 
-    // set up webdriver
     WebDriver driver = new WebTest().newWebDriverSession();
     driver.manage().timeouts().setScriptTimeout(60, SECONDS);
 
@@ -51,7 +49,6 @@ class WebTestRunner {
     log("RunURL is: " + runURL);
     driver.get(runURL);
 
-    // wait for tests to finish
     new FluentWait<>((JavascriptExecutor) driver)
         .pollingEvery(Duration.ofMillis(100))
         .withTimeout(Duration.ofSeconds(5))
@@ -65,9 +62,8 @@ class WebTestRunner {
         }
         );
 
-    // get test results
-    String report = ((JavascriptExecutor) driver).executeScript("return window.top.G_testRunner.getReport();").toString();
-    log(report);
+    String testReport = ((JavascriptExecutor) driver).executeScript("return window.top.G_testRunner.getReport();").toString();
+    log(testReport);
 
     boolean allTestsPassed = (boolean) ((JavascriptExecutor) driver).executeScript("return window.top.G_testRunner.isSuccess();");
 
