@@ -47,8 +47,9 @@ public final class FileServerHandler implements HttpHandler {
   }
 
   private void handleServeFile(HttpExchange exchange, Path path) throws IOException {
-     var respHdrs = exchange.getResponseHeaders();
-     respHdrs.set("Content-Type", "text/html");
+     // var respHdrs = exchange.getResponseHeaders();
+     // respHdrs.set("Content-Type", "text/html");
+     exchange.getResponseHeaders().set("Content-Type", "text/html; charset=UTF-8");
      exchange.sendResponseHeaders(200, Files.size(path));
      try (InputStream fis = Files.newInputStream(path);
           OutputStream os = exchange.getResponseBody()) {

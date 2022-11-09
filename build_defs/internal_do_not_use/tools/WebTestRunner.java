@@ -37,9 +37,9 @@ class WebTestRunner {
     log("testURL is: " + testURL);
 
     int port = PortProber.findFreePort();
-    String cwd = System.getProperty("user.dir");
+    String currentDir = System.getProperty("user.dir");
     HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
-    HttpContext context = server.createContext("/", new FileServerHandler(cwd));
+    HttpContext context = server.createContext("/", new FileServerHandler(currentDir));
     server.start();
 
     WebDriver driver = new WebTest().newWebDriverSession();
