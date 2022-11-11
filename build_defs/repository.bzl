@@ -34,12 +34,6 @@ def load_j2cl_repo_deps():
         sha256 = "54678552125753d9fc0a37736d140f1d2e69778d3e52cf454df41a913b964ede",
     )
 
-    http_archive(
-        name = "io_bazel_rules_webtesting",
-        sha256 = "e9abb7658b6a129740c0b3ef6f5a2370864e102a5ba5ffca2cea565829ed825a",
-        urls = ["https://github.com/bazelbuild/rules_webtesting/releases/download/0.3.5/rules_webtesting.tar.gz"],
-    )
-
     # Add other closure repo deps that need to loaded beforehand.
     # A differnt alternative would be to let rules_closure load them but then
     # we would need to take setup_j2cl_workspace out of rules.bzl and go with a

@@ -2,23 +2,12 @@
 
 Takes Java source that contains JUnit tests, translates it into JS
 and packages it into web test targets for testing.
-
-Example use:
-
-j2cl_test(
-    name = "MyTest",
-    srcs = ["MyTest.java"],
-    deps = [
-        ":Bar", # Directly depends on j2cl_library(name="Bar")
-        "@com_google_j2cl//third_party:junit-j2cl",
-    ],
-)
 """
 
 load(":j2cl_library.bzl", j2cl_library_rule = "j2cl_library")
 load(":j2cl_generate_jsunit_suite.bzl", "j2cl_generate_jsunit_suite")
 load(":j2cl_util.bzl", "get_java_package")
-load(":closure_js_test.bzl", "closure_js_test")
+load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_test")
 # load(":j2cl_js_common.bzl", "J2CL_TEST_DEFS") #TODO: Do we need to add these flags?
 
 _STRIP_JSUNIT_PARAMETERS = [
@@ -69,6 +58,24 @@ def _verify_attributes(runtime_deps, **kwargs):
     if "exports" in kwargs:
         fail("using exports on j2cl_test is not supported")
 
+def _get_testsuite_file(name, out_zip):
+    testsuite_file_name = name + "_test.js"
+    native.genrule(
+        name = "gen" + name + "_test.js",
+        srcs = [out_zip],
+        outs = [
+            testsuite_file_name,
+        ],
+        cmd = "\n".join([
+            "unzip -q -o $(locations %s) *.js -d zip_out/" % out_zip,
+            "cd zip_out/",
+            "mkdir -p ../$(RULEDIR)",
+            "for f in $$(find -name *.js); do mv $$f ../$@; done",
+        ]),
+        testonly = 1,
+    )
+    return testsuite_file_name
+
 def j2cl_test_common(
         name,
         deps = [],
@@ -118,23 +125,9 @@ def j2cl_test_common(
         tags = tags,
     )
 
-    out_zip = ":%s_generated_suite.js.zip" % name
-    testsuite_file_name = name + "_test.js"
-
-    native.genrule(
-        name = "gen" + name + "_test.js",
-        srcs = [out_zip],
-        outs = [
-            testsuite_file_name,
-        ],
-        cmd = "\n".join([
-            "unzip -q -o $(locations %s) *.js -d zip_out/" % out_zip,
-            "cd zip_out/",
-            "mkdir -p ../$(RULEDIR)",
-            "for f in $$(find -name *.js); do mv $$f ../$@; done",
-        ]),
-        testonly = 1,
-    )
+    # rules_closure doesn't support zip in srcs, so only 1 testsuite is allowed here.
+    # unzip generated_suite.js.zip and take 1 testsuite js file
+    testsuite_file = _get_testsuite_file(name, ":%s_generated_suite.js.zip" % name)
 
     deps = [
       "%s_testlib" % name,
@@ -147,12 +140,10 @@ def j2cl_test_common(
 
     closure_js_test(
         name = name,
-        srcs = [":" + testsuite_file_name],
+        srcs = [":%s" % testsuite_file],
         deps = deps,
-        browsers = browsers,
         testonly = 1,
         timeout = "short",
         entry_points = ["javatests." + test_class + "_AdapterSuite",],
         # defs = J2CL_TEST_DEFS,
     )
-
