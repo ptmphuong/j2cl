@@ -18,7 +18,8 @@ j2cl_test(
 load(":j2cl_library.bzl", j2cl_library_rule = "j2cl_library")
 load(":j2cl_generate_jsunit_suite.bzl", "j2cl_generate_jsunit_suite")
 load(":j2cl_util.bzl", "get_java_package")
-load(":closure_js_test.bzl", "closure_js_test")
+# load(":closure_js_test.bzl", "closure_js_test")
+load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_test")
 # load(":j2cl_js_common.bzl", "J2CL_TEST_DEFS") #TODO: Do we need to add these flags?
 
 _STRIP_JSUNIT_PARAMETERS = [
@@ -149,7 +150,7 @@ def j2cl_test_common(
         name = name,
         srcs = [":" + testsuite_file_name],
         deps = deps,
-        browsers = browsers,
+        # browsers = browsers,
         testonly = 1,
         timeout = "short",
         entry_points = ["javatests." + test_class + "_AdapterSuite",],
