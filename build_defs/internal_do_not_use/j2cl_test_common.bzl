@@ -58,6 +58,7 @@ def _verify_attributes(runtime_deps, **kwargs):
     if "exports" in kwargs:
         fail("using exports on j2cl_test is not supported")
 
+# unzip generated_suite.js.zip and take 1 testsuite js file
 def _get_testsuite_file(name, out_zip):
     testsuite_file_name = name + "_test.js"
     native.genrule(
@@ -126,7 +127,6 @@ def j2cl_test_common(
     )
 
     # rules_closure doesn't support zip in srcs, so only 1 testsuite is allowed here.
-    # unzip generated_suite.js.zip and take 1 testsuite js file
     testsuite_file = _get_testsuite_file(name, ":%s_generated_suite.js.zip" % name)
 
     deps = [
