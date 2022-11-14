@@ -166,6 +166,7 @@ alias(
 alias(
     name = "closure_testcase",
     actual = "@com_google_javascript_closure_library//closure/goog/testing:testcase",
+    visibility = ["//visibility:public"],
 )
 
 alias(
