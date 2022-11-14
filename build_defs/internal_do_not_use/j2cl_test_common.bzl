@@ -59,7 +59,7 @@ def _verify_attributes(runtime_deps, **kwargs):
         fail("using exports on j2cl_test is not supported")
 
 # unzip generated_suite.js.zip and take 1 testsuite js file
-def _get_testsuite_file(name, out_zip):
+def _get_single_testsuite(name, out_zip):
     testsuite_file_name = name + "_test.js"
     native.genrule(
         name = "gen" + name + "_test.js",
@@ -126,16 +126,15 @@ def j2cl_test_common(
         tags = tags,
     )
 
-    # rules_closure doesn't support zip in srcs, so only 1 testsuite is allowed here.
-    testsuite_file = _get_testsuite_file(name, ":%s_generated_suite.js.zip" % name)
+    # TODO: support multiple testsuites.
+    testsuite_file = _get_single_testsuite(name, ":%s_generated_suite.js.zip" % name)
 
     deps = [
       "%s_testlib" % name,
       ":%s_generated_suite_lib" % name,
-      "@com_google_javascript_closure_library//closure/goog/testing:asserts",
-      "@com_google_javascript_closure_library//closure/goog/testing:jsunit",
-      "@com_google_javascript_closure_library//closure/goog/testing:testsuite",
-      "@com_google_javascript_closure_library//closure/goog/testing:testcase",
+      Label("//third_party:closure_asserts"),
+      Label("//third_party:closure_testsuite"),
+      Label("//third_party:closure_testcase"),
     ]
 
     closure_js_test(

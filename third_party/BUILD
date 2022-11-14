@@ -151,6 +151,7 @@ alias(
 alias(
     name = "closure_asserts",
     actual = "@com_google_javascript_closure_library//closure/goog/asserts",
+    visibility = ["//visibility:public"],
 )
 
 alias(
@@ -172,6 +173,7 @@ alias(
 alias(
     name = "closure_testsuite",
     actual = "@com_google_javascript_closure_library//closure/goog/testing:testsuite",
+    visibility = ["//visibility:public"],
 )
 
 alias(
