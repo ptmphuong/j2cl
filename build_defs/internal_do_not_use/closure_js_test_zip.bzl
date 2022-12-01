@@ -12,6 +12,11 @@ load(
     "zip_file_test_library"
 )
 
+load(
+    "//build_defs/internal_do_not_use:closure_js_library_zip.bzl",
+    "closure_js_library_zip"
+)
+
 def closure_js_test(
         name,
         srcs,
@@ -35,79 +40,75 @@ def closure_js_test(
         fail("closure_js_test can not have an empty 'srcs' list")
     if language:
         print("closure_js_test 'language' is removed and now always ES6 strict")
-    for src in srcs:
-        if not src.endswith("_test.js"):
-            fail("closure_js_test srcs must be files ending with _test.js")
-    if len(srcs) == 1:
-        work = [(name, srcs)]
-    else:
-        work = [(name + _make_suffix(src), [src]) for src in srcs]
+    # for src in srcs:
+    #     if not src.endswith("_test.js"):
+    #         fail("closure_js_test srcs must be files ending with _test.js")
+    # if len(srcs) == 1:
+    #     work = [(name, srcs)]
+    # else:
+    #     work = [(name + _make_suffix(src), [src]) for src in srcs]
 
-    for shard, sauce in work:
-        closure_js_library(
-            name = "%s_closure_lib" % shard,
-            srcs = sauce,
-            data = data,
+    all_tests = []
+
+    for enp in entry_points:
+        closure_js_library_zip(
+            name = "%s_%s_closure_lib" % (name, enp),
+            srcs = srcs,
+            # data = data,
             deps = deps,
-            lenient = lenient,
-            suppress = suppress,
+            # lenient = lenient,
+            # suppress = suppress,
+            suppress = ["strictDependencies"],
             visibility = visibility,
             testonly = True,
             tags = tags,
         )
 
-        print("entry_points is: " + str(entry_points))
-
-        if type(entry_points) == type({}):
-            ep = entry_points.get(sauce[0])
-        else:
-            ep = entry_points
-
         deps = deps + [
-            ":%s_closure_lib" % shard,
+            "%s_%s_closure_lib" % (name, enp),
         ]
 
         closure_js_binary(
-            name = "%s_closure_bin" % shard,
+            name = "%s_%s_closure_bin" % (name, enp),
             deps = deps,
             compilation_level = compilation_level,
             css = css,
             debug = True,
             defs = defs,
-            entry_points = ep,
+            entry_points = [enp],
             formatting = "PRETTY_PRINT",
             visibility = visibility,
             testonly = True,
             tags = tags,
         )
 
-        if not html:
-          gen_test_html(
-            name = "gen_%s" % shard,
-            test_file_js = "%s_closure_bin.js" % shard,
-          )
-          html = "gen_%s" % shard
+        html = "gen_%s_%s" % (name, enp)
 
-        if not browsers:
-            browsers = ["@io_bazel_rules_webtesting//browsers:chromium-local"]
+        gen_test_html(
+          name = html,
+          test_file_js = "%s_%s_closure_bin.js" % (name, enp),
+        )
+
+        data = [":%s_%s_closure_bin" % (name, enp), html]
 
         web_test_suite(
-            name = shard,
-            data = [":%s_closure_bin" % shard, html],
+            name = "%s_%s" % (name, enp),
+            data = data,
             test = "@com_google_j2cl//build_defs/internal_do_not_use/tools:webtest",
             args = ["--test_url", "$(location %s)" % html],
-            browsers = browsers,
+            browsers = ["@io_bazel_rules_webtesting//browsers:chromium-local"],
             tags = ["no-sandbox", "native"],
             visibility = visibility,
             **kwargs
         )
 
-    if len(srcs) > 1:
-        native.test_suite(
-            name = name,
-            tests = [":" + shard for shard, _ in work],
-            tags = tags,
-        )
+        all_tests.append(":%s_%s" % (name, enp))
+
+    native.test_suite(
+        name = name,
+        tests = all_tests,
+        tags = tags,
+    )
 def _gen_test_html_impl(ctx):
     """Implementation of the gen_test_html rule."""
     ctx.actions.expand_template(

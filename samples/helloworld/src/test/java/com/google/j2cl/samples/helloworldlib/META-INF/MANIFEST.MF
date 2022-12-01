@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Created-By: bazel
+Target-Label: //src/test/java/com/google/j2cl/samples/helloworldlib:Simp
+ leSuite_generated_suite_lib
+

@@ -36,8 +36,12 @@ class WebTestRunner {
     }
     log("testURL is: " + testURL);
 
+    // testURL = "/com/google/j2cl/samples/helloworldlib/gen_SimpleSuite_com/google/j2cl/samples/helloworldlib/SimpleTest.html";
+    // log("new testURL is: " + testURL);
+
     int port = PortProber.findFreePort();
     String currentDir = System.getProperty("user.dir");
+    log("currentDir is: " + currentDir);
     HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
     HttpContext context = server.createContext("/", new FileServerHandler(currentDir));
     server.start();

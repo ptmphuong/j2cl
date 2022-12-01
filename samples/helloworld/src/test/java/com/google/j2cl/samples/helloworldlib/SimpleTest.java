@@ -19,14 +19,4 @@ public class SimpleTest {
   public void testAdd() {
     assertEquals(1, 1);
   }
-
-  @Test
-  public void testAddFailed() {
-    assertEquals(2, 1);
-  }
-
-  @Test
-  public void testAddFailedLast() {
-    assertEquals(5, 1);
-  }
 }

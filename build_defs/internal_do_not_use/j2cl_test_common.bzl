@@ -18,9 +18,9 @@ j2cl_test(
 load(":j2cl_library.bzl", j2cl_library_rule = "j2cl_library")
 load(":j2cl_generate_jsunit_suite.bzl", "j2cl_generate_jsunit_suite")
 load(":j2cl_util.bzl", "get_java_package")
-# load(":closure_js_test.bzl", "closure_js_test")
-load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_test")
-# load(":j2cl_js_common.bzl", "J2CL_TEST_DEFS") #TODO: Do we need to add these flags?
+load(":closure_js_test_zip.bzl", closure_js_test_zip = "closure_js_test")
+load(":closure_js_test.bzl", "closure_js_test")
+# load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_test")
 
 _STRIP_JSUNIT_PARAMETERS = [
     "args",
@@ -122,6 +122,17 @@ def j2cl_test_common(
     out_zip = ":%s_generated_suite.js.zip" % name
     testsuite_file_name = name + "_test.js"
 
+    fail_multiple_testsuites = """
+        FAIL: j2cl_test supports testing with a single testsuite only.
+        IF YOU HAVE MULTIPLE TESTSUITES, WE DO NOT KNOW IF ALL OF
+        YOUR TESTS PASS OR NOT!
+    """
+
+    fail_suiteclasses = """
+        FAIL: j2cl_test currently doesn't support testing with @RunWith(Suite.class) format.
+        Please directly provide the tests that has @RunWith(JUnit4.class).
+    """
+
     native.genrule(
         name = "gen" + name + "_test.js",
         srcs = [out_zip],
@@ -132,6 +143,10 @@ def j2cl_test_common(
             "unzip -q -o $(locations %s) *.js -d zip_out/" % out_zip,
             "cd zip_out/",
             "mkdir -p ../$(RULEDIR)",
+            "if [ $$(find -name *.js | wc -l) -ne 1 ];",
+            "then echo \"%s\"; exit 1; fi" % fail_multiple_testsuites,
+            "if [ $$(find -name %s.js | wc -l) -ne 1 ];" % name,
+            "then echo \"%s\"; exit 1; fi" % fail_suiteclasses,
             "for f in $$(find -name *.js); do mv $$f ../$@; done",
         ]),
         testonly = 1,
@@ -146,14 +161,34 @@ def j2cl_test_common(
       "@com_google_javascript_closure_library//closure/goog/testing:testcase",
     ]
 
-    closure_js_test(
-        name = name,
-        srcs = [":" + testsuite_file_name],
-        deps = deps,
-        # browsers = browsers,
-        testonly = 1,
-        timeout = "short",
-        entry_points = ["javatests." + test_class + "_AdapterSuite",],
-        # defs = J2CL_TEST_DEFS,
-    )
+    st = get_java_package(native.package_name()) + ".SimpleTest"
+    hw = get_java_package(native.package_name()) + ".HelloWorldTest"
 
+    if name.endswith("Suite"):
+        entry_points = [
+            "javatests." + hw + "_AdapterSuite",
+            "javatests." + st + "_AdapterSuite",
+        ]
+        srcs = [out_zip]
+
+        closure_js_test_zip(
+            name = name,
+            srcs = srcs,
+            deps = deps,
+            testonly = 1,
+            timeout = "short",
+            entry_points = entry_points,
+        )
+
+    else:
+        entry_points = ["javatests." + test_class + "_AdapterSuite"]
+        srcs = [":" + testsuite_file_name]
+
+        closure_js_test(
+            name = name,
+            srcs = srcs,
+            deps = deps,
+            testonly = 1,
+            timeout = "short",
+            entry_points = entry_points,
+        )
